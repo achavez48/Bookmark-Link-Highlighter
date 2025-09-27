@@ -210,7 +210,6 @@ function replaceStringPattern(string, pattern, replacement) {
  * @param {Map<string, PatternReplacementType>} replacementRules - The array mapping the host names with their replacement rules.
  * @returns {LinkType} The link element with the `href` property changed. (Either the host version or the complete URL).
 */
-// * @param {Array} replacementRules - The array mapping the host names with their replacement rules.
 function replaceHrefInLink(link, replacementRules) {
 
 	/** Function to validate the key string in the rule dictionary.
@@ -338,7 +337,6 @@ function getCssRules(element) {
 
 	const originalTextSize = getOriginalTextSize(appliedRules);
 
-	// Get only the rule name
 	/** Function to get only the CSS rule name, without the attributes.
 	 * @function
 	 * @param {string} rule - The CSS rule name with it's attributes.
@@ -442,11 +440,8 @@ function changeAllChildren(link, options) {
  * @returns {void}
  */
 function highlightAllLinks(response) {
-	// const bookmarks = new Set(response.bookmarks);
 	const bookmarks = response.bookmarks;
 	const options = response.options;
-	// console.log(Array.from(response.options.replacementRules.keys()));
-	// console.log(Array.from(response.options.replacementRules.values()));
 	
 	/** Function to highlight the link with the `href` property and/or it's children.
 	 * @function

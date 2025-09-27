@@ -605,7 +605,7 @@ function changePageOptionsFromStorage(result) {
 	 * @param {OptionsStorageType} dictionary - The dictionary that holds the key.
 	 * @param {string} key - The key that should be checked and accessed to.
 	 * @param {boolean | number | string} default_value - The default value that should be returned if the key is not found.
-	 * @returns {boolean | number | string} The value for a key, either from the existing dictionary or the defalut.
+	 * @returns {boolean | number | string} The value for a key, either from the existing dictionary or the default.
 	 */
 	const keyValidate = (dictionary, key, default_value) => {if (key in dictionary) return dictionary[key]; else return default_value;}
 

@@ -285,15 +285,11 @@ function writeToOptionsCache(result) {
 
 		if (hostNames && patternsToReplace && replacements) {
 			for (let i = 0; i < hostNames.length; i++) {
-				dictionary.set(hostNames[i], {patternsToReplace: patternsToReplace[i], replacements:replacements[i]});
+				dictionary.set(hostNames[i], {patternsToReplace: patternsToReplace[i], replacements: replacements[i]});
 			}
 			return dictionary;
 		}
 		return dictionary;
-		// for (let i = 0; i < hostNames.length; i++) {
-		// 	dictionary.set(hostNames[i], {patternsToReplace: patternsToReplace[i], replacements:replacements[i]});
-		// }
-		// return dictionary;
 	}
 	optionsCache.replacementRules = createReplacementRules();
 		
@@ -329,7 +325,6 @@ function getOptionsFromStorage() {
 		"patternsToReplace", 
 		"replacements"]).then(writeToOptionsCache);
 	
-	// optionsCache.getOptionsSaved = false;
 }
 
 /** Function to get options from the storage if they are not already in the cache or changes are made in middle operation.
@@ -341,7 +336,6 @@ async function getOptions() {
 		getOptionsFromStorage();
 		optionsCache.getOptionsSaved = false;
 	}
-	// return optionsCache;
 }
 
 
@@ -356,7 +350,6 @@ let bookmarkCache = null;
  */
 async function getBookmarksOnce() {
 	
-	// const options = await getOptions();
 	await getOptions();
 	
 	if (bookmarkCache) return {bookmarkCache: bookmarkCache, options: optionsCache};
