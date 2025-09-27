@@ -21,7 +21,10 @@
 	],
 	"browser_specific_settings": {
 		"gecko": {
-			"id": "@bookmark-link-highlighter.achavez48"
+			"id": "@bookmark-link-highlighter.achavez48",
+			"data_collection_permissions": {
+				"required": ["none"]
+			}
 		}
 	},
 	"background": {

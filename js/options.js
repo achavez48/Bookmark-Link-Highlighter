@@ -106,7 +106,6 @@ class OptionsStorageType{
  * @constant
  */
 const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
-// const fontSizeDefault = {'sampleText1': "", 'sampleText2': "2em"};
 
 /** Function to get the text hue value from the slider, modify the graph value and return it.
  * @function
@@ -114,7 +113,7 @@ const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
  */
 function changeTextHue() {
 	const textHue = document.getElementById('textHueSlide').value;
-	document.getElementById('textHueVal').innerHTML = textHue;
+	document.getElementById('textHueVal').innerText = textHue;
 	return textHue;
 }
 /** Function to get the text saturation value from the slider, modify the graph value and return it.
@@ -123,7 +122,7 @@ function changeTextHue() {
  */
 function changeTextSaturation() {
 	const textSaturation = document.getElementById('textSaturationSlide').value + "%";
-	document.getElementById('textSaturationVal').innerHTML = textSaturation;
+	document.getElementById('textSaturationVal').innerText = textSaturation;
 	return textSaturation;
 }
 /** Function to get the text lightness value from the slider, modify the graph value and return it.
@@ -132,7 +131,7 @@ function changeTextSaturation() {
  */
 function changeTextLightness() {
 	const textLightness = document.getElementById('textLightnessSlide').value + "%";
-	document.getElementById('textLightnessVal').innerHTML = textLightness;
+	document.getElementById('textLightnessVal').innerText = textLightness;
 	return textLightness;
 }
 
@@ -159,16 +158,13 @@ function changeTextColor() {
  */
 function changeTextSize() {
 	const textSize = document.getElementById('textSizeSlide').value;
-	document.getElementById('textSizeVal').innerHTML = textSize + "%";
+	document.getElementById('textSizeVal').innerText = textSize + "%";
 	if (document.getElementById('textCheck').checked == true) {
 		document.getElementById('sampleText1').style.fontSize = textSize / 100 + "em";
 		document.getElementById('sampleText2').style.fontSize = Number(fontSizeDefault.sampleText2.slice(0, -2)) * textSize / 100 + "em";
-		// document.getElementById('sampleText2').style.fontSize = Number(fontSizeDefault['sampleText2'].slice(0, -2)) * textSize / 100 + "em";
 	} else {
 		document.getElementById('sampleText1').style.fontSize = fontSizeDefault.sampleText1;
 		document.getElementById('sampleText2').style.fontSize = fontSizeDefault.sampleText2;
-		// document.getElementById('sampleText1').style.fontSize = fontSizeDefault['sampleText1'];
-		// document.getElementById('sampleText2').style.fontSize = fontSizeDefault['sampleText2'];
 	}
 }
 
@@ -209,7 +205,7 @@ function changeTextFont() {
  */
 function changeOutlineHue() {
 	const outlineHue = document.getElementById('outlineHueSlide').value;
-	document.getElementById('outlineHueVal').innerHTML = outlineHue;
+	document.getElementById('outlineHueVal').innerText = outlineHue;
 	return outlineHue;
 }
 /** Function to get the outline saturation value from the slider, modify the graph value and return it.
@@ -218,7 +214,7 @@ function changeOutlineHue() {
  */
 function changeOutlineSaturation() {
 	const outlineSaturation = document.getElementById('outlineSaturationSlide').value + "%";
-	document.getElementById('outlineSaturationVal').innerHTML = outlineSaturation;
+	document.getElementById('outlineSaturationVal').innerText = outlineSaturation;
 	return outlineSaturation;
 }
 /** Function to get the outline lightness value from the slider, modify the graph value and return it.
@@ -227,7 +223,7 @@ function changeOutlineSaturation() {
  */
 function changeOutlineLightness() {
 	const outlineLightness = document.getElementById('outlineLightnessSlide').value + "%";
-	document.getElementById('outlineLightnessVal').innerHTML = outlineLightness;
+	document.getElementById('outlineLightnessVal').innerText = outlineLightness;
 	return outlineLightness;
 }
 
@@ -254,7 +250,7 @@ function changeOutlineColor() {
  */
 function changeOutlineSize(){
 	const outlineSize = document.getElementById('outlineSizeSlide').value;
-	document.getElementById('outlineSizeVal').innerHTML = outlineSize + "%";
+	document.getElementById('outlineSizeVal').innerText = outlineSize + "%";
 	if (document.getElementById('outlineCheck').checked == true) {
 		document.getElementById('sampleText1').style.outlineWidth = outlineSize / 100 + "em";
 		document.getElementById('sampleText2').style.outlineWidth = outlineSize / 100 + "em";
@@ -286,7 +282,7 @@ function changeOutlineStyle() {
  */
 function changeBackgroundHue() {
 	const backgroundHue = document.getElementById('backgroundHueSlide').value;
-	document.getElementById('backgroundHueVal').innerHTML = backgroundHue;
+	document.getElementById('backgroundHueVal').innerText = backgroundHue;
 	return backgroundHue;
 }
 /** Function to get the background saturation value from the slider, modify the graph value and return it.
@@ -295,7 +291,7 @@ function changeBackgroundHue() {
  */
 function changeBackgroundSaturation() {
 	const backgroundSaturation = document.getElementById('backgroundSaturationSlide').value + "%";
-	document.getElementById('backgroundSaturationVal').innerHTML = backgroundSaturation;
+	document.getElementById('backgroundSaturationVal').innerText = backgroundSaturation;
 	return backgroundSaturation;
 }
 /** Function to get the background lightness value from the slider, modify the graph value and return it.
@@ -304,7 +300,7 @@ function changeBackgroundSaturation() {
  */
 function changeBackgroundLightness() {
 	const backgroundLightness = document.getElementById('backgroundLightnessSlide').value + "%";
-	document.getElementById('backgroundLightnessVal').innerHTML = backgroundLightness;
+	document.getElementById('backgroundLightnessVal').innerText = backgroundLightness;
 	return backgroundLightness;
 }
 

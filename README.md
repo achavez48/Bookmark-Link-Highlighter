@@ -1,10 +1,10 @@
 # Bookmark Link Highlighter
 
 ## Description
-Bookmark Link Highlighter is a Firefox extension that highligths links in a webpage that are saved as Bookmarks; changing link text, outline and background styles. It is capable to change links using Regex to add flexibility on legacy URLs and other consistencies.
+Bookmark Link Highlighter is a Firefox extension that highlights links in a webpage that are saved as Bookmarks; changing link text, outline and background styles. It is capable to change links using Regex to add flexibility on legacy URLs and other consistencies.
 
 ## Download Links
-* [Firefox](https://addons.mozilla.org/firefox/addon/ my extension /)
+* [Firefox](https://addons.mozilla.org/en-US/firefox/addon/bookmark-link-highlighter/)
 
 ## Examples
 There are 2 types of links, internal and external.
