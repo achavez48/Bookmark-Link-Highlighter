@@ -1,0 +1,42 @@
+{
+	"manifest_version": 2,
+	"name": "Bookmark Link Highlighter",
+	"version": "1.0",
+	"description": "Highlights links on a page that exist in your bookmarks.",
+	"icons": {
+		"16": "images/icon-180.svg", 
+		"19": "images/icon-180.svg", 
+		"32": "images/icon-180.svg", 
+		"38": "images/icon-180.svg", 
+		"48": "images/icon-180.svg", 
+		"64": "images/icon-180.svg", 
+		"128": "images/icon-180.svg",
+		"180": "images/icon-180.svg"
+	},
+	"permissions": [
+		"bookmarks", 
+		"scripting", 
+		"activeTab", 
+		"storage"
+	],
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "@bookmark-link-highlighter.achavez48"
+		}
+	},
+	"background": {
+		"scripts": ["js/background.js"]
+	},
+	"options_ui": {
+		"page": "options.html",
+		"open_in_tab": true
+	},
+	"content_scripts": [
+		{
+			"matches": ["<all_urls>"],
+			"js": ["js/highlight-bookmarks.js"],
+			"run_at": "document_idle"
+		}
+	]
+	
+}

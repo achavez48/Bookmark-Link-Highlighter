@@ -1,0 +1,16 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "firefox",
+			"request": "launch",
+			"reAttach": true,
+			"name": "Launch localhost",
+			"url": "https://www.furaffinity.net/user/miles-df/",
+			"webRoot": "${workspaceFolder}",
+			"profileDir": "C:\\Users\\Alberto\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\newProfile",
+			"keepProfileChanges": true,
+			"addonPath": "${workspaceFolder}"
+		}
+	]
+}
