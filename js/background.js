@@ -102,12 +102,12 @@ class OptionsStorageType{
 class PatternReplacementType {
 	/**
 	 * Creates an instance of `PatternReplacementType`.
-	 * @param {string} patternsToReplace - The patterns to replace on and for the host name.
+	 * @param {RegExp} patternsToReplace - The patterns to replace in regex on and for the host name.
 	 * @param {string} replacements - The replacement patterns on and for the host name.
 	 */
 	constructor (patternsToReplace, replacements) {
-		/** The patterns to replace on and for the host name. 
-		 * @type {string} */
+		/** The patterns to replace in regex on and for the host name. 
+		 * @type {RegExp} */
 		this.patternsToReplace = patternsToReplace;
 		/** The replacement patterns on and for the host name. 
 		 * @type {string} */
@@ -181,6 +181,7 @@ class optionsCacheType{
 
 /** Variable storing the options.
  * @var
+ * @type {optionsCacheType}
  */
 let optionsCache = {
 	getOptionsSaved: true,
@@ -198,6 +199,22 @@ let optionsCache = {
 	replacementRules: new Map()
 }
 
+/** Function to compile regex rules and store them in `compiledRules`.
+ * @function
+ * @param {{patternsToReplace: string, replacements: string}} replacementRules - Replacement patterns and replacements.
+ * @returns {PatternReplacementType | null}Replacements in regex and their replacements.
+ */
+function compileRules(replacementRules) {
+	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)\/([a-z]*)$/);
+	const newPattern = patternStringToRegex[1];
+	const newFlag = patternStringToRegex[2];
+
+	if (patternStringToRegex) {
+		return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRules.replacements);
+	}
+	return null;
+}
+
 /** Function to write the options to the cache.
  * @function
  * @param {OptionsStorageType} result - The options that come directly from the storage.
@@ -212,7 +229,7 @@ function writeToOptionsCache(result) {
 	 * @param {boolean | number | string} default_value - The default value that should be returned if the key is not found.
 	 * @returns {boolean | number | string} The value for a key, either from the existing dictionary or the defalut.
 	 */
-	const keyValidate = (dictionary, key, default_value) => {if (key in dictionary) return dictionary[key]; else return default_value;}
+	const keyValidate = (dictionary, key, default_value) => {return dictionary[key] ?? default_value;}
 
 	const textCheck = keyValidate(result, 'textCheck', true);
 	optionsCache.textCheck = textCheck;
@@ -285,7 +302,7 @@ function writeToOptionsCache(result) {
 
 		if (hostNames && patternsToReplace && replacements) {
 			for (let i = 0; i < hostNames.length; i++) {
-				dictionary.set(hostNames[i], {patternsToReplace: patternsToReplace[i], replacements: replacements[i]});
+				dictionary.set(hostNames[i], compileRules({patternsToReplace: patternsToReplace[i], replacements: replacements[i]}));
 			}
 			return dictionary;
 		}
@@ -341,6 +358,7 @@ async function getOptions() {
 
 /** Variable storing the bookmarks.
  * @var
+ * @type {Set<string> | null}
  */
 let bookmarkCache = null;
 
@@ -359,7 +377,7 @@ async function getBookmarksOnce() {
 
 	/** Function to extract the URLs from the bookmarks tree.
 	 * @function
-	 * @param {Array<{url:string, children: Array<string>}>} items 
+	 * @param {Array<{url: string, children: Array<string>, title: string}>} items 
 	 * @returns {void}
 	 */
 	const extractUrls = (items) => {
