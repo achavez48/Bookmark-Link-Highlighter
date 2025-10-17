@@ -59,12 +59,12 @@ class LinkType extends Element {
 class PatternReplacementType {
 	/**
 	 * Creates an instance of `PatternReplacementType`.
-	 * @param {string} patternsToReplace - The patterns to replace on and for the host name.
+	 * @param {RegExp} patternsToReplace - The patterns to replace in regex on and for the host name.
 	 * @param {string} replacements - The replacement patterns on and for the host name.
 	 */
 	constructor (patternsToReplace, replacements) {
-		/** The patterns to replace on and for the host name. 
-		 * @type {string} */
+		/** The patterns to replace in regex on and for the host name. 
+		 * @type {RegExp} */
 		this.patternsToReplace = patternsToReplace;
 		/** The replacement patterns on and for the host name. 
 		 * @type {string} */
@@ -174,8 +174,7 @@ class OriginalTextSizeType {
 /** Function that replaces in the string the pattern and replaces it with another pattern.
  * @function
  * @param {string} string - The original string to be changed.
- * @param {string} pattern - The pattern as a Regex to look for.
- * @param {string} replacement - The replacement pattern.
+ * @param {PatternReplacementType} rule - The host regex patterns to replace and the replacements.
  * @returns {string} The string with the pattern replacements.
  * @example
  * // Example 1:
@@ -188,16 +187,13 @@ class OriginalTextSizeType {
  * const newString3 = replaceStringPattern("/posts?tags=some_tag", "/(\/en\/posts\?tags=)|(\/posts\?tags=)/gi", "/en/?tags=");
  * console.log(newString3); // Expected output: /en/?tags=some_tag
  */
-function replaceStringPattern(string, pattern, replacement) {
-	const patternStringToRegex = pattern.match(/^\/(.+)\/([a-z]*)$/);
+function replaceStringPattern(string, rule) {
 	let newString = string;
-	if (patternStringToRegex == null){
+	if (rule == null){
 		return newString;
 	}
-	const newPattern = patternStringToRegex[1];
-	const newFlag = patternStringToRegex[2];
 	try {
-		newString = newString.replace(RegExp(newPattern, newFlag), replacement);
+		newString = newString.replace(rule.patternsToReplace, rule.replacements);
 	} catch (error) {
 		// Ignore error.
 	}
@@ -223,32 +219,22 @@ function replaceHrefInLink(link, replacementRules) {
 	/** Function to replace link elements with the `href` property considering internal/external links and their replacement rules.
 	 * @function
 	 * @param {Map<string, PatternReplacementType>} replacementRules - Dictionary of host names and their replacement rules.
-	 * @param {string} pattern - Current seach pattern rule.
-	 * @param {string} replacement - Current replacement pattern rule.
+	 * @param {PatternReplacementType} rule - Current regex search pattern rule.
 	 * @returns {LinkType} New link element with it's `href` property changed if any.
 	 */
-	const replaceInDomainTest = (replacementRules, pattern, replacement) => {
+	const replaceInDomainTest = (replacementRules, rule) => {
 		let newLink = link;
 
 		if (newLink.attributes.href.value.search(/(https:\/\/)|(http:\/\/)/gi) != -1) { // Evaluate internal/external links.
-			
-			// Split in "//" and if it contains any of the host names specified in the options slice it (ex: http://www.somepage.com/somesubpage/ -> newHost = somepage.com)
-			let completeHrefSplit = newLink.attributes.href.value.split("//")[1];
-			for (const host in replacementRules.keys()) {
-				const hostIndex = completeHrefSplit.search(host);
-				if (hostIndex != -1) {
-					completeHrefSplit = completeHrefSplit.slice(hostIndex);
-				}
-			}
 
-			const newHost = completeHrefSplit.split("/")[0]; // For external links.
+			const newHost = new URL(newLink.attributes.href.value).hostname; // For external links.
 
 			if (keyValidate(replacementRules, newHost)) { // Replace external links according to actual rules.
-				newLink.href = replaceStringPattern(newLink.attributes.href.value, replacementRules.get(newHost).patternsToReplace, replacementRules.get(newHost).replacements);
+				newLink.href = replaceStringPattern(newLink.attributes.href.value, replacementRules.get(newHost));
 			}
 
 		} else { // Replace internal links according to actual rules.
-			newLink.href = replaceStringPattern(newLink.attributes.href.value, pattern, replacement);
+			newLink.href = replaceStringPattern(newLink.attributes.href.value, rule);
 		}
 
 		return newLink;
@@ -257,7 +243,7 @@ function replaceHrefInLink(link, replacementRules) {
 	const hostName = document.location.hostname; // For internal links.
 
 	if (keyValidate(replacementRules, hostName)) {
-		link = replaceInDomainTest(replacementRules, replacementRules.get(hostName).patternsToReplace, replacementRules.get(hostName).replacements);
+		link = replaceInDomainTest(replacementRules, replacementRules.get(hostName));
 	}
 	
 	return link;
@@ -270,6 +256,40 @@ function replaceHrefInLink(link, replacementRules) {
  * @returns {OriginalTextSizeType | null} The CSS rule for that link element (`font-size`).
  */
 function getCssRules(element) {
+	
+	// // New
+	// const style = window.getComputedStyle(element);
+	// const fontSize = style.fontSize;
+
+	// const getFontSizeAttributes = (fontSizeString) => {
+	// 	if (fontSizeString == null) {
+	// 		return null;
+	// 	}
+
+	// 	let units = String();
+	// 	if (fontSizeString.search("rem") != -1) {
+	// 		units = "rem";
+	// 		fontSizeString = fontSizeString.split("rem")[0];
+	// 	}
+	// 	if (fontSizeString.search("em") != -1) {
+	// 		units = "em";
+	// 		fontSizeString = fontSizeString.split("em")[0];
+	// 	}
+	// 	if (fontSizeString.search("px") != -1) {
+	// 		units = "px";
+	// 		fontSizeString = fontSizeString.split("px")[0];
+	// 	}
+	// 	if (fontSizeString.search("%") != -1) {
+	// 		units = "%";
+	// 		fontSizeString = fontSizeString.split("%")[0];
+	// 	}
+
+	// 	return new OriginalTextSizeType(Number(fontSizeString), units, "testing");
+	// }
+
+	// const originalTextSize = getFontSizeAttributes(fontSize);
+	// // New END
+	
 	const appliedRules = [];
 	const stylesheets = document.styleSheets;
 	
@@ -466,6 +486,20 @@ function highlightAllLinks(response) {
 	}
 
 	document.querySelectorAll('a[href]').forEach(highlightLink); // Initial highlight for all existing links
+
+
+	const pending = new Set();
+	let observerScheduled = false;
+	
+	const scheduleHighlightLink = () => {
+		if (observerScheduled) return;
+		observerScheduled = true;
+		requestIdleCallback(() => {
+			pending.forEach(link => highlightLink(link));
+			pending.clear();
+			observerScheduled = false;
+		})
+	}
 	
 	// Watch for new links being added to the page
 	const observer = new MutationObserver((mutations) => {
@@ -473,14 +507,17 @@ function highlightAllLinks(response) {
 			for (const node of mutation.addedNodes) {
 				if (node.nodeType === Node.ELEMENT_NODE) {
 					if (node.tagName === 'A' && node.href) {
-						highlightLink(node);
+						// highlightLink(node);
+						pending.add(node);
 					} else {
 						// In case links are nested deeper
-						node.querySelectorAll?.('a[href]').forEach(highlightLink);
+						// node.querySelectorAll?.('a[href]').forEach(highlightLink);
+						node.querySelectorAll?.('a[href]').forEach(node => pending.add(node));
 					}
 				}
 			}
 		}
+		scheduleHighlightLink();
 	});
 
 	observer.observe(document.body, { childList: true, subtree: true });

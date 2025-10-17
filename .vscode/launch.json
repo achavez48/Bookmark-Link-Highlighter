@@ -6,7 +6,7 @@
 			"request": "launch",
 			"reAttach": true,
 			"name": "Launch localhost",
-			"url": "https://www.youtube.com/",
+			"url": "https://www.furaffinity.net/user/miles-df/",
 			"webRoot": "${workspaceFolder}",
 			"profileDir": "C:\\Users\\Alberto\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\newProfile",
 			"keepProfileChanges": true,
