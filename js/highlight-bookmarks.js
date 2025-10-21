@@ -443,7 +443,10 @@ function highlightAllLinks(response) {
 		}
 	}
 
-	document.querySelectorAll('a[href]').forEach(highlightLink); // Initial highlight for all existing links
+	// Initial highlight for all existing links
+	/* WARNING: Some pages may grab an 'initial' bookmarked href and dynamically insert new elements with hrefs
+	that are not bookmarked and still be highlighted later in the mutations. I haven't found a solution. */
+	document.querySelectorAll('a[href]').forEach(highlightLink);
 
 
 	const pending = new Set();
@@ -453,7 +456,7 @@ function highlightAllLinks(response) {
 		if (observerScheduled) return;
 		observerScheduled = true;
 		requestIdleCallback(() => {
-			pending.forEach(link => highlightLink(link));
+			pending.forEach(highlightLink);
 			pending.clear();
 			observerScheduled = false;
 		})
