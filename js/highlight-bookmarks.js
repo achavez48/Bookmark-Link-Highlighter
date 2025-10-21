@@ -149,14 +149,13 @@ class OptionsType {
 	}
 }
 
-/** Class for the link's original text size, unit and CSS rule. 
+/** Class for the link's original text size, unit. 
  * @class */
 class OriginalTextSizeType {
 	/**
 	 * Creates an instance of `OriginalTextSizeType`.
 	 * @param {number} size - The size of the original link's text.
 	 * @param {string} unit - The unit of the original link's text.
-	 * @param {string} rule - The original link's CSS rule.
 	 */
 	constructor (size, unit, rule) {
 		/** The size of the original link's text. 
@@ -165,9 +164,92 @@ class OriginalTextSizeType {
 		/** The unit of the original link's text. 
 		 * @type{string} */
 		this.unit = unit;
-		/** The original link's CSS rule. 
-		 * @type{string} */
-		this.rule = rule;
+	}
+}
+
+/**	Function to get the original text size number, unit and the entire CSS rule.
+ * @function
+ * @param {string} rule - CSS rule.
+ * @returns {OriginalTextSizeType | null} Returns the original text size with it's unit and rule if any.
+ */
+function getOriginalTextSize(rule) {
+	
+	let temp = rule;
+	temp = temp.split("font-size:")[1];
+	temp = temp.split(";")[0];
+	temp = temp.trim();
+	
+	let units = String();
+	if (temp.search("rem") != -1) {
+		units = "rem";
+		temp = temp.split("rem")[0];
+	}
+	if (temp.search("em") != -1) {
+		units = "em";
+		temp = temp.split("em")[0];
+	}
+	if (temp.search("px") != -1) {
+		units = "px";
+		temp = temp.split("px")[0];
+	}
+	if (temp.search("%") != -1) {
+		units = "%";
+		temp = temp.split("%")[0];
+	}
+	if (temp.search("vw") != -1) {
+		units = "vw";
+		temp = temp.split("vw")[0];
+	}
+
+	const size = Number(temp);
+	if (Number.isNaN(size)) {
+		return null;
+	}
+
+	return new OriginalTextSizeType(size, units);
+}
+
+/** Function to get all the CSS rules in the page.
+ * @function
+ * @param {StyleSheetList} styleSheets - The stylesheet list of the page.
+ * @returns {Map<string, OriginalTextSizeType | null>}
+ */
+function getAllCssRules(styleSheets) {
+	const appliedRules = new Map();
+	const property = "font-size";
+	for (let i = 0; i < styleSheets.length; i++) {
+		try {
+			const rules = styleSheets[i].cssRules; // || stylesheets[i].rules; // Deprecated
+			if (rules) {
+				for (let j = 0; j < rules.length; j++) {
+					const rule = rules[j];
+					if(rule.cssText.search(property) != -1) {
+						const originalTextSize = getOriginalTextSize(rule.cssText);
+						if (originalTextSize) {
+							appliedRules.set(rule.selectorText, originalTextSize);
+						}
+					}
+				}
+			}
+		} catch (error) {
+			// Ignore error.
+		}
+	}
+
+	return appliedRules;
+}
+
+/** Function to get any of the CSS rules (`font-size`) of the link element and save the originals with their units.
+ * @function
+ * @param {LinkType} element - The link element with the `href` property.
+ * @param {Map<string, OriginalTextSizeType | null>} appliedRules - Dictionary of applied rules on the page, with the `selectorText` as keys and the font size as values.
+ * @returns {OriginalTextSizeType | null} The CSS rule for that link element (`font-size`).
+ */
+function getCssRules(element, appliedRules) {
+	for (const [selector, size] of appliedRules) {
+		if (element.matches(selector)) {
+			return size;
+		}
 	}
 }
 
@@ -249,137 +331,6 @@ function replaceHrefInLink(link, replacementRules) {
 	return link;
 }
 
-
-/** Function to get any of the CSS rules (`font-size`) of the link element and save the originals with their units.
- * @function
- * @param {LinkType} element - The link element with the `href` property.
- * @returns {OriginalTextSizeType | null} The CSS rule for that link element (`font-size`).
- */
-function getCssRules(element) {
-	
-	// // New
-	// const style = window.getComputedStyle(element);
-	// const fontSize = style.fontSize;
-
-	// const getFontSizeAttributes = (fontSizeString) => {
-	// 	if (fontSizeString == null) {
-	// 		return null;
-	// 	}
-
-	// 	let units = String();
-	// 	if (fontSizeString.search("rem") != -1) {
-	// 		units = "rem";
-	// 		fontSizeString = fontSizeString.split("rem")[0];
-	// 	}
-	// 	if (fontSizeString.search("em") != -1) {
-	// 		units = "em";
-	// 		fontSizeString = fontSizeString.split("em")[0];
-	// 	}
-	// 	if (fontSizeString.search("px") != -1) {
-	// 		units = "px";
-	// 		fontSizeString = fontSizeString.split("px")[0];
-	// 	}
-	// 	if (fontSizeString.search("%") != -1) {
-	// 		units = "%";
-	// 		fontSizeString = fontSizeString.split("%")[0];
-	// 	}
-
-	// 	return new OriginalTextSizeType(Number(fontSizeString), units, "testing");
-	// }
-
-	// const originalTextSize = getFontSizeAttributes(fontSize);
-	// // New END
-	
-	const appliedRules = [];
-	const stylesheets = document.styleSheets;
-	
-	for (let i = 0; i < stylesheets.length; i++) {
-		try {
-			const rules = stylesheets[i].cssRules; // || stylesheets[i].rules; // Deprecated
-			if (rules) {
-				for (let j = 0; j < rules.length; j++) {
-					const rule = rules[j];
-					if (rule.selectorText && element.matches(rule.selectorText)) {
-						appliedRules.push(rule.cssText);
-					}
-				}
-			}
-		} catch (error) {
-			// Ignore error.
-		}
-	}
-
-	/**	Function to get the original text size number, unit and the entire CSS rule.
-	 * @function
-	 * @param {Array<string>} rules - Array of CSS rules.
-	 * @returns {OriginalTextSizeType | null} Returns the original text size with it's unit and rule if any.
-	 */
-	const getOriginalTextSize = (rules) => {
-		const textSize = [];
-		const property = "font-size";
-
-		for (let i = 0; i < rules.length; i++) {
-			const found = rules[i].search(property);
-			if (found != -1) {
-				let temp = String();
-				temp = rules[i].slice(found, rules[i].length);
-				temp = temp.split("font-size:")[1];
-				temp = temp.split(";")[0];
-				temp = temp.trim();
-				
-				let units = String();
-				if (temp.search("rem") != -1) {
-					units = "rem";
-					temp = temp.split("rem")[0];
-				}
-				if (temp.search("em") != -1) {
-					units = "em";
-					temp = temp.split("em")[0];
-				}
-				if (temp.search("px") != -1) {
-					units = "px";
-					temp = temp.split("px")[0];
-				}
-				if (temp.search("%") != -1) {
-					units = "%";
-					temp = temp.split("%")[0];
-				}
-
-				textSize.push(new OriginalTextSizeType(Number(temp), units, rules[i]));
-			}
-		}
-		if (textSize == []) {
-			return null;
-		} else {
-			return textSize[0];
-		}
-	}
-
-	const originalTextSize = getOriginalTextSize(appliedRules);
-
-	/** Function to get only the CSS rule name, without the attributes.
-	 * @function
-	 * @param {string} rule - The CSS rule name with it's attributes.
-	 * @returns {string} The CSS rule name.
-	 */
-	const getRuleNameOnly = (rule) => {
-		let ruleName = rule;
-		if (ruleName.search(".") == 0) {
-			ruleName = ruleName.split(".")[1];
-		}
-		ruleName = ruleName.split("{")[0];
-		ruleName = ruleName.trim();
-
-		return ruleName;
-	}
-
-	if (originalTextSize) {
-		originalTextSize.rule = getRuleNameOnly(originalTextSize.rule);
-	}
-	
-	return originalTextSize;
-}
-
 /** Function to change the link's CSS text style.
  * @function
  * @param {LinkType} element - The link element with the `href` property.
@@ -393,11 +344,13 @@ function changeTextStyle(element, options, originalTextSize) {
 			if (originalTextSize.unit === "rem") {
 				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "rem", 'important');
 			} else if (originalTextSize.unit === "em") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize / 100 + - 1 + "em", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + options.textSize / 100 - 1 + "em", 'important');
 			} else if (originalTextSize.unit === "px") {
 				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "px", 'important');
 			} else if (originalTextSize.unit === "%") {
 				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "%", 'important');
+			} else if (originalTextSize.unit === "vw") {
+				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "vw", 'important');
 			} else {
 				element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
 			}
@@ -440,15 +393,16 @@ function changeBackgroundStyle(element, options) {
 /** Function to change the text of all children under the link element that has the `href` property (in case text is displayed deep within the node).
  * @function
  * @param {LinkType} link - The link element with the `href` property.
+ * @param {Map<string, OriginalTextSizeType | null>} appliedRules - Dictionary of applied rules on the page, with the `selectorText` as keys and the font size as values.
  * @param {OptionsType} options - The options imported from the background.
  * @returns {void}
  */
-function changeAllChildren(link, options) {
+function changeAllChildren(link, appliedRules, options) {
 
 	const children = link.querySelectorAll('*');
 
 	for (const child of children) {
-		const originalTextSize = getCssRules(child);
+		const originalTextSize = getCssRules(child, appliedRules);
 
 		changeTextStyle(child, options, originalTextSize);
 	}
@@ -462,6 +416,10 @@ function changeAllChildren(link, options) {
 function highlightAllLinks(response) {
 	const bookmarks = response.bookmarks;
 	const options = response.options;
+
+	const styleSheets = document.styleSheets;
+	const appliedRules = getAllCssRules(styleSheets);
+	
 	
 	/** Function to highlight the link with the `href` property and/or it's children.
 	 * @function
@@ -473,7 +431,7 @@ function highlightAllLinks(response) {
 		link = replaceHrefInLink(link, options.replacementRules);
 
 		if (bookmarks.has(link.href)) {
-			const originalTextSize = getCssRules(link);
+			const originalTextSize = getCssRules(link, appliedRules);
 			
 			// link.setAttribute("class", "");
 
@@ -481,7 +439,7 @@ function highlightAllLinks(response) {
 			changeOutlineStyle(link, options);
 			changeBackgroundStyle(link, options);
 
-			changeAllChildren(link, options);
+			changeAllChildren(link, appliedRules, options);
 		}
 	}
 

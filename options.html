@@ -274,7 +274,7 @@
 					<th><label>Replacements</label></th>
 				</tr>
 				<tr>
-					<th><textarea id="hostNames" class="dynamic-textArea" style="min-width: 174px; min-height: 54px;" placeholder="twitter.com&#13;youtube.com"></textarea></th>
+					<th><textarea id="hostNames" class="dynamic-textArea" style="min-width: 174px; min-height: 54px;" placeholder="twitter.com&#13;www.youtube.com"></textarea></th>
 					<th><textarea id="patternsToReplace" class="dynamic-textArea" style="min-width: 252px; min-height: 54px;" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea></th>
 					<th><textarea id="replacements" class="dynamic-textArea" style="min-width: 154px; min-height: 54px;" placeholder="x.com&#13;$1$2"></textarea></th>
 				</tr>
@@ -299,10 +299,10 @@
 		<div>
 			<p>
 				* If an external link host is included in the list but the current host page is not in the list the link is not replaced.<br>
-				Like changing a twitter link "twitter.com/some_user" to an X link "x.com/some_user" in a current host "youtube.com".<br>
+				Like changing a twitter link "twitter.com/some_user" to an X link "x.com/some_user" in a current host "www.youtube.com".<br>
 				To replace external links in such scenario, include a dummy host name belonging to the current page and give simple rules.<br>
 				Ex:<br>
-				Host Name = youtube.com<br>
+				Host Name = www.youtube.com<br>
 				Patterns to Replace = //gi<br>
 				Replacement = (empty)<br>
 				<br>

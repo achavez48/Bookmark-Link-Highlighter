@@ -13,7 +13,7 @@ There are 2 types of links, internal and external.
 
 ### Changing external Twitter links to X in Youtube to highlight them
 To change external links in a host name the host is included and given dummy rules. If the dummy host is not added the links won't change.
-- Host Names = `youtube.com, twitter.com`
+- Host Names = `www.youtube.com, twitter.com`
 - Patterns to Replace = `//gi, /twitter.com/gi`
 - Replacements = `, x.com`
 - Test Links = (Inside Youtube host) -> `https://twitter.com/user`
@@ -21,7 +21,7 @@ To change external links in a host name the host is included and given dummy rul
 
 ### Changing external Twitter links to X when Youtube also has rules to highlight them
 To change external links in a host name that also has rules no dummy is necessary, the links are changed because the current host name it's already added.
-- Host Names = `youtube.com, twitter.com`
+- Host Names = `www.youtube.com, twitter.com`
 - Patterns to Replace = `/(\/watch\?v=)(.*)&list=(.*)$/gi, /twitter.com/gi`
 - Replacements = `$1$2, x.com`
 - Test Links = (Inside Youtube host) -> `https://twitter.com/user, /watch?v=VIDEO_ID&list=LIST_ID&index=2`
