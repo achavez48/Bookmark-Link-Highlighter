@@ -179,34 +179,54 @@ function getOriginalTextSize(rule) {
 	temp = temp.split(";")[0];
 	temp = temp.trim();
 	
+	/** Function to return current search.
+	 * @function
+	 * @param {string} value 
+	 * @param {string} units 
+	 * @returns {OriginalTextSizeType | null}
+	 */
+	const filter = (value, units) => {
+		const size = Number(value);
+		if (Number.isNaN(size)) {
+			return null;
+		}
+		return new OriginalTextSizeType(size, units);
+	}
+
 	let units = String();
 	if (temp.search("rem") != -1) {
 		units = "rem";
 		temp = temp.split("rem")[0];
+		return filter(temp, units);
 	}
 	if (temp.search("em") != -1) {
 		units = "em";
 		temp = temp.split("em")[0];
+		return filter(temp, units);
 	}
 	if (temp.search("px") != -1) {
 		units = "px";
 		temp = temp.split("px")[0];
+		return filter(temp, units);
 	}
 	if (temp.search("%") != -1) {
 		units = "%";
 		temp = temp.split("%")[0];
+		return filter(temp, units);
 	}
 	if (temp.search("vw") != -1) {
 		units = "vw";
 		temp = temp.split("vw")[0];
+		return filter(temp, units);
 	}
 
-	const size = Number(temp);
-	if (Number.isNaN(size)) {
-		return null;
-	}
+	return null;
+	// const size = Number(temp);
+	// if (Number.isNaN(size)) {
+	// 	return null;
+	// }
 
-	return new OriginalTextSizeType(size, units);
+	// return new OriginalTextSizeType(size, units);
 }
 
 /** Function to get all the CSS rules in the page.
@@ -342,20 +362,20 @@ function changeTextStyle(element, options, originalTextSize) {
 	if (options.textCheck) {
 		if (originalTextSize) {
 			if (originalTextSize.unit === "rem") {
-				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "rem", 'important');
+				element.style.setProperty('font-size', originalTextSize.size * Number(options.textSize) / 100 + "rem", 'important');
 			} else if (originalTextSize.unit === "em") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize / 100 - 1 + "em", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + Number(options.textSize) / 100 - 1 + "em", 'important');
 			} else if (originalTextSize.unit === "px") {
-				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "px", 'important');
+				element.style.setProperty('font-size', originalTextSize.size * Number(options.textSize) / 100 + "px", 'important');
 			} else if (originalTextSize.unit === "%") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "%", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + Number(options.textSize) - 100 + "%", 'important');
 			} else if (originalTextSize.unit === "vw") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "vw", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + Number(options.textSize) - 100 + "vw", 'important');
 			} else {
-				element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
+				element.style.setProperty('font-size', Number(options.textSize) / 100 + "em", 'important');
 			}
 		} else {
-			element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
+			element.style.setProperty('font-size', Number(options.textSize) / 100 + "em", 'important');
 		}
 
 		element.style.setProperty('color', options.textColor, 'important');
@@ -452,6 +472,10 @@ function highlightAllLinks(response) {
 	const pending = new Set();
 	let observerScheduled = false;
 	
+	/** Function to schedule highlighting links.
+	 * 
+	 * @returns {void}
+	 */
 	const scheduleHighlightLink = () => {
 		if (observerScheduled) return;
 		observerScheduled = true;
