@@ -11,22 +11,22 @@ class OptionsStorageType{
 	/** 
 	 * Creates an instance of `OptionsStorageType`.
 	 * @param {boolean} textCheck - If the text should change or not.
-	 * @param {number} textHueSlide - The text hue `0-359`.
-	 * @param {number} textSaturationSlide - The text staturation `0-100`.
-	 * @param {number} textLightnessSlide - The text lightness  `0-100`.
-	 * @param {number} textSizeSlide - The text relative size.
+	 * @param {string} textHueSlide - The text hue `0-359`.
+	 * @param {string} textSaturationSlide - The text staturation `0-100`.
+	 * @param {string} textLightnessSlide - The text lightness  `0-100`.
+	 * @param {string} textSizeSlide - The text relative size.
 	 * @param {string} textStyleSelection - The text style.
 	 * @param {string} textFontSelection - The text font family.
 	 * @param {boolean} outlineCheck - If the outline should change or not.
-	 * @param {number} outlineHueSlide - The outline hue `0-359`.
-	 * @param {number} outlineSaturationSlide - The outline saturation `0-100`.
-	 * @param {number} outlineLightnessSlide - The outline lightness `0-100`.
-	 * @param {number} outlineSizeSlide - The outline relative size.
+	 * @param {string} outlineHueSlide - The outline hue `0-359`.
+	 * @param {string} outlineSaturationSlide - The outline saturation `0-100`.
+	 * @param {string} outlineLightnessSlide - The outline lightness `0-100`.
+	 * @param {string} outlineSizeSlide - The outline relative size.
 	 * @param {string} outlineStyleSelection - The outline style.
 	 * @param {boolean} backgroundCheck - If the background should change or not.
-	 * @param {number} backgroundHueSlide - The background hue `0-359`.
-	 * @param {number} backgroundSaturationSlide - The background saturation `0-100`.
-	 * @param {number} backgroundLightnessSlide - The background lightness `0-100`.
+	 * @param {string} backgroundHueSlide - The background hue `0-359`.
+	 * @param {string} backgroundSaturationSlide - The background saturation `0-100`.
+	 * @param {string} backgroundLightnessSlide - The background lightness `0-100`.
 	 * @param {string} hostNames - The collection of spaced separated host names in a single string.
 	 * @param {string} patternsToReplace - The collection of spaced separated patterns to replace for each host name in a single string.
 	 * @param {string} replacements - The collection of spaced separated replacement patterns for each host name in a single string.
@@ -39,16 +39,16 @@ class OptionsStorageType{
 		 * @type {boolean} */
 		this.textCheck = textCheck;
 		/** The text hue `0-359`.
-		 * @type {number} */
+		 * @type {string} */
 		this.textHueSlide = textHueSlide;
 		/** The text staturation `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.textSaturationSlide = textSaturationSlide;
 		/** The text lightness  `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.textLightnessSlide = textLightnessSlide;
 		/** The text relative size.
-		 * @type {number} */
+		 * @type {string} */
 		this.textSizeSlide = textSizeSlide;
 		/** The text style.
 		 * @type {string} */
@@ -60,16 +60,16 @@ class OptionsStorageType{
 		 * @type {boolean} */
 		this.outlineCheck = outlineCheck;
 		/** The outline hue `0-359`.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineHueSlide = outlineHueSlide;
 		/** The outline saturation `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineSaturationSlide = outlineSaturationSlide;
 		/** The outline lightness `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineLightnessSlide = outlineLightnessSlide;
 		/** The outline relative size.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineSizeSlide = outlineSizeSlide;
 		/** The outline style.
 		 * @type {string} */
@@ -78,13 +78,13 @@ class OptionsStorageType{
 		 * @type {boolean} */
 		this.backgroundCheck = backgroundCheck;
 		/** The background hue `0-359`.
-		 * @type {number} */
+		 * @type {string} */
 		this.backgroundHueSlide = backgroundHueSlide;
 		/** The background saturation `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.backgroundSaturationSlide = backgroundSaturationSlide;
 		/** The background lightness `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.backgroundLightnessSlide = backgroundLightnessSlide;
 		/** The collection of spaced separated host names in a single string.
 		 * @type {string} */
@@ -109,7 +109,7 @@ const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
 
 /** Function to get the text hue value from the slider, modify the graph value and return it.
  * @function
- * @returns {number} Text hue value.
+ * @returns {string} Text hue value.
  */
 function changeTextHue() {
 	const textHue = document.getElementById('textHueSlide').value;
@@ -157,7 +157,7 @@ function changeTextColor() {
  * @returns {void}
  */
 function changeTextSize() {
-	const textSize = document.getElementById('textSizeSlide').value;
+	const textSize = Number(document.getElementById('textSizeSlide').value);
 	document.getElementById('textSizeVal').innerText = textSize + "%";
 	if (document.getElementById('textCheck').checked == true) {
 		document.getElementById('sampleText1').style.fontSize = textSize / 100 + "em";
@@ -201,7 +201,7 @@ function changeTextFont() {
 
 /** Function to get the outline hue value from the slider, modify the graph value and return it.
  * @function
- * @returns {number} Outline hue value.
+ * @returns {string} Outline hue value.
  */
 function changeOutlineHue() {
 	const outlineHue = document.getElementById('outlineHueSlide').value;
@@ -249,7 +249,7 @@ function changeOutlineColor() {
  * @returns {void}
  */
 function changeOutlineSize(){
-	const outlineSize = document.getElementById('outlineSizeSlide').value;
+	const outlineSize = Number(document.getElementById('outlineSizeSlide').value);
 	document.getElementById('outlineSizeVal').innerText = outlineSize + "%";
 	if (document.getElementById('outlineCheck').checked == true) {
 		document.getElementById('sampleText1').style.outlineWidth = outlineSize / 100 + "em";
@@ -278,7 +278,7 @@ function changeOutlineStyle() {
 
 /** Function to get the background hue value from the slider, modify the graph value and return it.
  * @function
- * @returns {number} Background hue value.
+ * @returns {string} Background hue value.
  */
 function changeBackgroundHue() {
 	const backgroundHue = document.getElementById('backgroundHueSlide').value;
@@ -604,30 +604,30 @@ function changePageOptionsFromStorage(result) {
 	 * @function
 	 * @param {OptionsStorageType} dictionary - The dictionary that holds the key.
 	 * @param {string} key - The key that should be checked and accessed to.
-	 * @param {boolean | number | string} default_value - The default value that should be returned if the key is not found.
-	 * @returns {boolean | number | string} The value for a key, either from the existing dictionary or the default.
+	 * @param {boolean | string | null} default_value - The default value that should be returned if the key is not found.
+	 * @returns {boolean | string | null} The value for a key, either from the existing dictionary or the default.
 	 */
 	const keyValidate = (dictionary, key, default_value) => {if (key in dictionary) return dictionary[key]; else return default_value;}
 
 	document.getElementById('textCheck').checked = keyValidate(result, 'textCheck', true);
-	document.getElementById('textHueSlide').value = keyValidate(result, 'textHueSlide', 0);
-	document.getElementById('textSaturationSlide').value = keyValidate(result, 'textSaturationSlide', 100);
-	document.getElementById('textLightnessSlide').value = keyValidate(result, 'textLightnessSlide', 50);
-	document.getElementById('textSizeSlide').value = keyValidate(result, 'textSizeSlide', 100);
+	document.getElementById('textHueSlide').value = keyValidate(result, 'textHueSlide', "0");
+	document.getElementById('textSaturationSlide').value = keyValidate(result, 'textSaturationSlide', "100");
+	document.getElementById('textLightnessSlide').value = keyValidate(result, 'textLightnessSlide', "50");
+	document.getElementById('textSizeSlide').value = keyValidate(result, 'textSizeSlide', "100");
 	document.getElementById('textStyleSelection').value = keyValidate(result, 'textStyleSelection', "");
 	document.getElementById('textFontSelection').value = keyValidate(result, 'textFontSelection', "");
 
 	document.getElementById('outlineCheck').checked = keyValidate(result, 'outlineCheck', true);
-	document.getElementById('outlineHueSlide').value = keyValidate(result, 'outlineHueSlide', 242);
-	document.getElementById('outlineSaturationSlide').value = keyValidate(result, 'outlineSaturationSlide', 100);
-	document.getElementById('outlineLightnessSlide').value = keyValidate(result, 'outlineLightnessSlide', 50);
-	document.getElementById('outlineSizeSlide').value = keyValidate(result, 'outlineSizeSlide', 10);
+	document.getElementById('outlineHueSlide').value = keyValidate(result, 'outlineHueSlide', "242");
+	document.getElementById('outlineSaturationSlide').value = keyValidate(result, 'outlineSaturationSlide', "100");
+	document.getElementById('outlineLightnessSlide').value = keyValidate(result, 'outlineLightnessSlide', "50");
+	document.getElementById('outlineSizeSlide').value = keyValidate(result, 'outlineSizeSlide', "10");
 	document.getElementById('outlineStyleSelection').value = keyValidate(result, 'outlineStyleSelection', "dashed");
 
 	document.getElementById('backgroundCheck').checked = keyValidate(result, 'backgroundCheck', true);
-	document.getElementById('backgroundHueSlide').value = keyValidate(result, 'backgroundHueSlide', 112);
-	document.getElementById('backgroundSaturationSlide').value = keyValidate(result, 'backgroundSaturationSlide', 100);
-	document.getElementById('backgroundLightnessSlide').value =keyValidate(result, 'backgroundLightnessSlide', 50);
+	document.getElementById('backgroundHueSlide').value = keyValidate(result, 'backgroundHueSlide', "112");
+	document.getElementById('backgroundSaturationSlide').value = keyValidate(result, 'backgroundSaturationSlide', "100");
+	document.getElementById('backgroundLightnessSlide').value =keyValidate(result, 'backgroundLightnessSlide', "50");
 
 	changeAll();
 

@@ -362,20 +362,20 @@ function changeTextStyle(element, options, originalTextSize) {
 	if (options.textCheck) {
 		if (originalTextSize) {
 			if (originalTextSize.unit === "rem") {
-				element.style.setProperty('font-size', originalTextSize.size * Number(options.textSize) / 100 + "rem", 'important');
+				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "rem", 'important');
 			} else if (originalTextSize.unit === "em") {
-				element.style.setProperty('font-size', originalTextSize.size + Number(options.textSize) / 100 - 1 + "em", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + options.textSize / 100 - 1 + "em", 'important');
 			} else if (originalTextSize.unit === "px") {
-				element.style.setProperty('font-size', originalTextSize.size * Number(options.textSize) / 100 + "px", 'important');
+				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "px", 'important');
 			} else if (originalTextSize.unit === "%") {
-				element.style.setProperty('font-size', originalTextSize.size + Number(options.textSize) - 100 + "%", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "%", 'important');
 			} else if (originalTextSize.unit === "vw") {
-				element.style.setProperty('font-size', originalTextSize.size + Number(options.textSize) - 100 + "vw", 'important');
+				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "vw", 'important');
 			} else {
-				element.style.setProperty('font-size', Number(options.textSize) / 100 + "em", 'important');
+				element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
 			}
 		} else {
-			element.style.setProperty('font-size', Number(options.textSize) / 100 + "em", 'important');
+			element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
 		}
 
 		element.style.setProperty('color', options.textColor, 'important');

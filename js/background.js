@@ -11,22 +11,22 @@ class OptionsStorageType{
 	/** 
 	 * Creates an instance of `OptionsStorageType`.
 	 * @param {boolean} textCheck - If the text should change or not.
-	 * @param {number} textHueSlide - The text hue `0-359`.
-	 * @param {number} textSaturationSlide - The text staturation `0-100`.
-	 * @param {number} textLightnessSlide - The text lightness  `0-100`.
-	 * @param {number} textSizeSlide - The text relative size.
+	 * @param {string} textHueSlide - The text hue `0-359`.
+	 * @param {string} textSaturationSlide - The text staturation `0-100`.
+	 * @param {string} textLightnessSlide - The text lightness  `0-100`.
+	 * @param {string} textSizeSlide - The text relative size.
 	 * @param {string} textStyleSelection - The text style.
 	 * @param {string} textFontSelection - The text font family.
 	 * @param {boolean} outlineCheck - If the outline should change or not.
-	 * @param {number} outlineHueSlide - The outline hue `0-359`.
-	 * @param {number} outlineSaturationSlide - The outline saturation `0-100`.
-	 * @param {number} outlineLightnessSlide - The outline lightness `0-100`.
-	 * @param {number} outlineSizeSlide - The outline relative size.
+	 * @param {string} outlineHueSlide - The outline hue `0-359`.
+	 * @param {string} outlineSaturationSlide - The outline saturation `0-100`.
+	 * @param {string} outlineLightnessSlide - The outline lightness `0-100`.
+	 * @param {string} outlineSizeSlide - The outline relative size.
 	 * @param {string} outlineStyleSelection - The outline style.
 	 * @param {boolean} backgroundCheck - If the background should change or not.
-	 * @param {number} backgroundHueSlide - The background hue `0-359`.
-	 * @param {number} backgroundSaturationSlide - The background saturation `0-100`.
-	 * @param {number} backgroundLightnessSlide - The background lightness `0-100`.
+	 * @param {string} backgroundHueSlide - The background hue `0-359`.
+	 * @param {string} backgroundSaturationSlide - The background saturation `0-100`.
+	 * @param {string} backgroundLightnessSlide - The background lightness `0-100`.
 	 * @param {string} hostNames - The collection of spaced separated host names in a single string.
 	 * @param {string} patternsToReplace - The collection of spaced separated patterns to replace for each host name in a single string.
 	 * @param {string} replacements - The collection of spaced separated replacement patterns for each host name in a single string.
@@ -38,16 +38,16 @@ class OptionsStorageType{
 		 * @type {boolean} */
 		this.textCheck = textCheck;
 		/** The text hue `0-359`.
-		 * @type {number} */
+		 * @type {string} */
 		this.textHueSlide = textHueSlide;
 		/** The text staturation `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.textSaturationSlide = textSaturationSlide;
 		/** The text lightness  `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.textLightnessSlide = textLightnessSlide;
 		/** The text relative size.
-		 * @type {number} */
+		 * @type {string} */
 		this.textSizeSlide = textSizeSlide;
 		/** The text style.
 		 * @type {string} */
@@ -59,16 +59,16 @@ class OptionsStorageType{
 		 * @type {boolean} */
 		this.outlineCheck = outlineCheck;
 		/** The outline hue `0-359`.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineHueSlide = outlineHueSlide;
 		/** The outline saturation `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineSaturationSlide = outlineSaturationSlide;
 		/** The outline lightness `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineLightnessSlide = outlineLightnessSlide;
 		/** The outline relative size.
-		 * @type {number} */
+		 * @type {string} */
 		this.outlineSizeSlide = outlineSizeSlide;
 		/** The outline style.
 		 * @type {string} */
@@ -77,13 +77,13 @@ class OptionsStorageType{
 		 * @type {boolean} */
 		this.backgroundCheck = backgroundCheck;
 		/** The background hue `0-359`.
-		 * @type {number} */
+		 * @type {string} */
 		this.backgroundHueSlide = backgroundHueSlide;
 		/** The background saturation `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.backgroundSaturationSlide = backgroundSaturationSlide;
 		/** The background lightness `0-100`.
-		 * @type {number} */
+		 * @type {string} */
 		this.backgroundLightnessSlide = backgroundLightnessSlide;
 		/** The collection of spaced separated host names in a single string.
 		 * @type {string} */
@@ -226,8 +226,8 @@ function writeToOptionsCache(result) {
 	 * @function
 	 * @param {OptionsStorageType} dictionary - The dictionary that holds the key.
 	 * @param {string} key - The key that should be checked and accessed to.
-	 * @param {boolean | number | string} default_value - The default value that should be returned if the key is not found.
-	 * @returns {boolean | number | string} The value for a key, either from the existing dictionary or the defalut.
+	 * @param {boolean | string | null} default_value - The default value that should be returned if the key is not found.
+	 * @returns {boolean | string | null} The value for a key, either from the existing dictionary or the defalut.
 	 */
 	const keyValidate = (dictionary, key, default_value) => {return dictionary[key] ?? default_value;}
 
@@ -238,11 +238,11 @@ function writeToOptionsCache(result) {
 	const backgroundCheck = keyValidate(result, 'backgroundCheck', true);
 	optionsCache.backgroundCheck = backgroundCheck;
 	if (textCheck) {
-		const textHue = keyValidate(result, 'textHueSlide', 0);
-		const textSaturation = keyValidate(result, 'textSaturationSlide', 100);
-		const textLightness = keyValidate(result, 'textLightnessSlide', 50);
+		const textHue = keyValidate(result, 'textHueSlide', "0");
+		const textSaturation = keyValidate(result, 'textSaturationSlide', "100");
+		const textLightness = keyValidate(result, 'textLightnessSlide', "50");
 		optionsCache.textColor = "hsl(" + textHue + ", " + textSaturation + "%, " + textLightness + "%)";
-		optionsCache.textSize = keyValidate(result, 'textSizeSlide', 100);
+		optionsCache.textSize = Number(keyValidate(result, 'textSizeSlide', "100"));
 		optionsCache.textStyle = keyValidate(result, 'textStyleSelection', "");
 		optionsCache.textFont = keyValidate(result, 'textFontSelection', "");
 	} else {
@@ -252,11 +252,11 @@ function writeToOptionsCache(result) {
 		optionsCache.textFont = "";
 	}
 	if (outlineCheck) {
-		const outlineHue = keyValidate(result, 'outlineHueSlide', 242);
-		const outlineSaturation = keyValidate(result, 'outlineSaturationSlide', 100);
-		const outlineLightness = keyValidate(result, 'outlineLightnessSlide', 50);
+		const outlineHue = keyValidate(result, 'outlineHueSlide', "242");
+		const outlineSaturation = keyValidate(result, 'outlineSaturationSlide', "100");
+		const outlineLightness = keyValidate(result, 'outlineLightnessSlide', "50");
 		optionsCache.outlineColor = "hsl(" + outlineHue + ", " + outlineSaturation + "%, " + outlineLightness + "%)";
-		optionsCache.outlineSize = keyValidate(result, 'outlineSizeSlide', 10);
+		optionsCache.outlineSize = Number(keyValidate(result, 'outlineSizeSlide', "10"));
 		optionsCache.outlineStyle = keyValidate(result, 'outlineStyleSelection', "dashed");
 	} else {
 		optionsCache.outlineColor = "";
@@ -264,9 +264,9 @@ function writeToOptionsCache(result) {
 		optionsCache.outlineStyle = "";
 	}
 	if (backgroundCheck) {
-		const backgroundHue = keyValidate(result, 'backgroundHueSlide', 112);
-		const backgroundSaturation = keyValidate(result, 'backgroundSaturationSlide', 100);
-		const backgroundLightness = keyValidate(result, 'backgroundLightnessSlide', 50);
+		const backgroundHue = keyValidate(result, 'backgroundHueSlide', "112");
+		const backgroundSaturation = keyValidate(result, 'backgroundSaturationSlide', "100");
+		const backgroundLightness = keyValidate(result, 'backgroundLightnessSlide', "50");
 		optionsCache.backgroundColor = "hsl(" + backgroundHue + ", " + backgroundSaturation + "%, " + backgroundLightness + "%)";
 	} else {
 		optionsCache.backgroundColor = "";
