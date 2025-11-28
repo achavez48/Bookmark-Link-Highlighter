@@ -8,7 +8,7 @@
 			"name": "Launch localhost",
 			"url": "https://www.youtube.com/",
 			"webRoot": "${workspaceFolder}",
-			"profileDir": "C:\\Users\\Alberto\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\newProfile",
+			"profileDir": "C:\\Users\\lowen\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\newProfile",
 			"keepProfileChanges": true,
 			"addonPath": "${workspaceFolder}"
 		}

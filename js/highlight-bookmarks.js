@@ -221,12 +221,6 @@ function getOriginalTextSize(rule) {
 	}
 
 	return null;
-	// const size = Number(temp);
-	// if (Number.isNaN(size)) {
-	// 	return null;
-	// }
-
-	// return new OriginalTextSizeType(size, units);
 }
 
 /** Function to get all the CSS rules in the page.
@@ -328,11 +322,14 @@ function replaceHrefInLink(link, replacementRules) {
 		let newLink = link;
 
 		if (newLink.attributes.href.value.search(/(https:\/\/)|(http:\/\/)/gi) != -1) { // Evaluate internal/external links.
+			try {
+				const newHost = new URL(newLink.attributes.href.value).hostname; // For external links.
 
-			const newHost = new URL(newLink.attributes.href.value).hostname; // For external links.
-
-			if (keyValidate(replacementRules, newHost)) { // Replace external links according to actual rules.
-				newLink.href = replaceStringPattern(newLink.attributes.href.value, replacementRules.get(newHost));
+				if (keyValidate(replacementRules, newHost)) { // Replace external links according to actual rules.
+					newLink.href = replaceStringPattern(newLink.attributes.href.value, replacementRules.get(newHost));
+				}
+			} catch {
+				console.warn(`URL not recognized: ${newLink.attributes.href.value}`);
 			}
 
 		} else { // Replace internal links according to actual rules.
@@ -343,13 +340,26 @@ function replaceHrefInLink(link, replacementRules) {
 	}
 
 	const hostName = document.location.hostname; // For internal links.
-
+	let newLink = link;
 	if (keyValidate(replacementRules, hostName)) {
-		link = replaceInDomainTest(replacementRules, replacementRules.get(hostName));
+		newLink = replaceInDomainTest(replacementRules, replacementRules.get(hostName));
 	}
 	
-	return link;
+	return newLink;
 }
+
+/** Collection of functions to change the link's text size depending on the units used.
+ * @constant
+ * @type {Map<string, (element: LinkType, optionsTextSize: number, originalTextSize: number) => void>}
+ */
+const setPropertyFontSize = new Map([
+	["rem", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize * optionsTextSize / 100 + "rem", 'important');}], 
+	["em", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize / 100 - 1 + "em", 'important');}], 
+	["px", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize * optionsTextSize / 100 + "px", 'important');}], 
+	["%", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize - 100 + "%", 'important');}], 
+	["vw", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize - 100 + "vw", 'important');}], 
+	["else", (element, optionsTextSize, ..._) => {element.style.setProperty('font-size', optionsTextSize / 100 + "em", 'important');}]
+]);
 
 /** Function to change the link's CSS text style.
  * @function
@@ -361,21 +371,9 @@ function replaceHrefInLink(link, replacementRules) {
 function changeTextStyle(element, options, originalTextSize) {
 	if (options.textCheck) {
 		if (originalTextSize) {
-			if (originalTextSize.unit === "rem") {
-				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "rem", 'important');
-			} else if (originalTextSize.unit === "em") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize / 100 - 1 + "em", 'important');
-			} else if (originalTextSize.unit === "px") {
-				element.style.setProperty('font-size', originalTextSize.size * options.textSize / 100 + "px", 'important');
-			} else if (originalTextSize.unit === "%") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "%", 'important');
-			} else if (originalTextSize.unit === "vw") {
-				element.style.setProperty('font-size', originalTextSize.size + options.textSize - 100 + "vw", 'important');
-			} else {
-				element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
-			}
+			(setPropertyFontSize.get(originalTextSize.unit) ?? setPropertyFontSize.get("else"))(element, options.textSize, originalTextSize.size);
 		} else {
-			element.style.setProperty('font-size', options.textSize / 100 + "em", 'important');
+			setPropertyFontSize.get("else")(element, options.textSize);
 		}
 
 		element.style.setProperty('color', options.textColor, 'important');
@@ -423,8 +421,10 @@ function changeAllChildren(link, appliedRules, options) {
 
 	for (const child of children) {
 		const originalTextSize = getCssRules(child, appliedRules);
-
-		changeTextStyle(child, options, originalTextSize);
+		if (child.tagName != 'IMG') {
+			changeTextStyle(child, options, originalTextSize);
+		}
+		// changeTextStyle(child, options, originalTextSize);
 	}
 }
 
@@ -439,15 +439,33 @@ function highlightAllLinks(response) {
 
 	const styleSheets = document.styleSheets;
 	const appliedRules = getAllCssRules(styleSheets);
-	
+
+	/** Collection of original styles and process status for all initial links in the page.
+	 * @constant
+	 * @type {Map<LinkType, {style: string, processed: boolean}>}
+	 */
+	const originalStyles = new Map();
+
+	/** Collection of mutations records for considered attributes.
+	 * @constant
+	 * @type {Set<MutationRecord>}
+	 */
+	const pendingAttributes = new Set();
 	
 	/** Function to highlight the link with the `href` property and/or it's children.
 	 * @function
 	 * @param {LinkType} link - The link element with the `href` property.
+	 * @param {boolean} original - Boolean to go back to the original style.
 	 * @returns {void}
 	 */
-	const highlightLink = (link) => {
+	const highlightLink = (link, original) => {
 		
+		const href = link.getAttribute('href') || link.getAttribute('data-href');
+		if (!href) return;
+
+		// Skip dummy / JS links.
+		if (href === "#" || href.startsWith("javascript")) return;
+
 		link = replaceHrefInLink(link, options.replacementRules);
 
 		if (bookmarks.has(link.href)) {
@@ -455,32 +473,74 @@ function highlightAllLinks(response) {
 			
 			// link.setAttribute("class", "");
 
-			changeTextStyle(link, options, originalTextSize);
+			if (link.tagName != 'IMG') {
+				changeTextStyle(link, options, originalTextSize);
+			}
+			// changeTextStyle(link, options, originalTextSize);
 			changeOutlineStyle(link, options);
 			changeBackgroundStyle(link, options);
 
 			changeAllChildren(link, appliedRules, options);
+		} else {
+			if (original) {
+				link.setAttribute("style", originalStyles.get(link).style);
+			}
 		}
 	}
 
-	// Initial highlight for all existing links
-	/* WARNING: Some pages may grab an 'initial' bookmarked href and dynamically insert new elements with hrefs
-	that are not bookmarked and still be highlighted later in the mutations. I haven't found a solution. */
-	document.querySelectorAll('a[href]').forEach(highlightLink);
+	// Initial highlight for all existing links.
+	document.querySelectorAll('a[href], [data-href]').forEach(node => {
+		const style = structuredClone(node.getAttribute("style"));
+		originalStyles.set(node, {style: style, processed: false});
+		highlightLink(node, false);
+	});
 
-
+	/** Collection of links loaded after page completion.
+	 * @constant
+	 * @type {Set<LinkType>}
+	 */
 	const pending = new Set();
 	let observerScheduled = false;
 	
 	/** Function to schedule highlighting links.
-	 * 
+	 * @function
 	 * @returns {void}
 	 */
 	const scheduleHighlightLink = () => {
 		if (observerScheduled) return;
 		observerScheduled = true;
 		requestIdleCallback(() => {
-			pending.forEach(highlightLink);
+		
+			pendingAttributes.forEach(mutation => {
+				const node = mutation.target;
+				const oldValue = mutation.oldValue;
+				const newValue = node.getAttribute("href") || node.getAttribute("data-href");
+				const style = structuredClone(node.getAttribute("style"));
+				if (!originalStyles.has(node)) {
+					originalStyles.set(node, {style: style, processed: false});
+				} else {
+					if (oldValue != newValue) {
+						originalStyles.get(node).processed = false;
+					} else {
+						originalStyles.get(node).processed = true;
+					}
+				}
+
+				if (!originalStyles.get(node).processed) {
+					originalStyles.get(node).processed = true;
+					highlightLink(node, true);
+				}
+			});
+			pendingAttributes.clear();
+
+			pending.forEach(node => {
+				if (node.matches('a[href], [data-href]')) {
+					highlightLink(node, false);
+				} else {
+					// In case links are nested deeper
+					node.querySelectorAll?.('a[href], [data-href]').forEach(node => highlightLink(node, false));
+				}
+			});
 			pending.clear();
 			observerScheduled = false;
 		})
@@ -489,24 +549,52 @@ function highlightAllLinks(response) {
 	// Watch for new links being added to the page
 	const observer = new MutationObserver((mutations) => {
 		for (const mutation of mutations) {
+			if (mutation.type === "attributes" && (mutation.attributeName === "href" || mutation.attributeName === "data-href")) {
+				pendingAttributes.add(mutation);
+			}
 			for (const node of mutation.addedNodes) {
 				if (node.nodeType === Node.ELEMENT_NODE) {
-					if (node.tagName === 'A' && node.href) {
-						// highlightLink(node);
-						pending.add(node);
-					} else {
-						// In case links are nested deeper
-						// node.querySelectorAll?.('a[href]').forEach(highlightLink);
-						node.querySelectorAll?.('a[href]').forEach(node => pending.add(node));
-					}
+					pending.add(node);
 				}
 			}
 		}
 		scheduleHighlightLink();
 	});
 
-	observer.observe(document.body, { childList: true, subtree: true });
+	observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['href', 'data-href'] });
 }
 
-/** Sends a message to take the action `getBookmarks` to the background. */
-browser.runtime.sendMessage({ action: "getBookmarks" }).then(highlightAllLinks);
+let backgroundResponseProcessed = false;
+
+/** Function to process the background response when it sends the bookmarks and options.
+ * @function
+ * @returns {void}
+ */
+function processBackgroundResponse() {
+	backgroundResponseProcessed = true;
+
+	/** Sends a message to take the action `getBookmarks` to the background. */
+	browser.runtime.sendMessage({ action: "getBookmarks" }).then(highlightAllLinks);
+}
+
+/** Function for the visibility change event listener, to process the page when visibility changes.
+ * @function
+ * @returns {void}
+ */
+function eventListenerFunction() {
+	if (!document.hidden && !backgroundResponseProcessed) {
+		// console.debug("Page was loaded while hidden, now visible it was processed.");
+		processBackgroundResponse();
+	} //else {
+	// 	console.debug("Page was loaded while hidden, it's still hidden and not processed yet.");
+	// }
+}
+
+/* Check if the page is visible and if the background already sent the bookmarks and options.
+   If not then add even listener for visibility change. */
+if (!document.hidden && !backgroundResponseProcessed) {
+	// console.debug("Page was loaded while visible.");
+	processBackgroundResponse();
+} else {
+	document.addEventListener("visibilitychange", eventListenerFunction, {once: true});
+}
