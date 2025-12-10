@@ -424,6 +424,19 @@ function deleteBookmarkEvent(bookmarkID, bookmarkInfo) {
 	bookmarkCache.delete(bookmarkURL);
 }
 
+/** Function to change bookmark in the bookmarks cache.
+ * @function
+ * @param {string} bookmarkID 
+ * @param {{url: string}} bookmarkInfo 
+ */
+function changeBookmarkEvent(bookmarkID, bookmarkInfo) {
+	// It only adds the new URL, because the old one is lost in the database so it cannot be located in the cache.
+	if ('url' in bookmarkInfo) {
+		const bookmarkURL = bookmarkInfo.url;
+		bookmarkCache.add(bookmarkURL);
+	}
+}
+
 /** Adds a listener to the `updateOptions` action when pressing the save button in the options page. */
 browser.runtime.onMessage.addListener((msg) => {
 	if (msg.action === "updateOptions") {
@@ -442,3 +455,5 @@ browser.runtime.onMessage.addListener((msg, sender) => {
 browser.bookmarks.onCreated.addListener(addBookmarkEvent);
 /** Adds a listener to the bookmark deletion event. */
 browser.bookmarks.onRemoved.addListener(deleteBookmarkEvent);
+/** Adds a listener to the bookmark changed event. */
+browser.bookmarks.onChanged.addListener(changeBookmarkEvent);
