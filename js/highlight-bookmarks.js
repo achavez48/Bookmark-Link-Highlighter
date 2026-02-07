@@ -408,24 +408,74 @@ function changeBackgroundStyle(element, options) {
 	}
 }
 
-/** Function to change the text of all children under the link element that has the `href` property (in case text is displayed deep within the node).
+// /** Function to change the text of all children under the link element that has the `href` property (in case text is displayed deep within the node).
+//  * @function
+//  * @param {LinkType} link - The link element with the `href` property.
+//  * @param {Map<string, OriginalTextSizeType | null>} appliedRules - Dictionary of applied rules on the page, with the `selectorText` as keys and the font size as values.
+//  * @param {OptionsType} options - The options imported from the background.
+//  * @returns {void}
+//  */
+// function changeAllChildren(link, appliedRules, options) {
+
+// 	const children = link.querySelectorAll('*');
+
+// 	for (const child of children) {
+// 		const originalTextSize = getCssRules(child, appliedRules);
+// 		if (child.tagName != 'IMG') {
+// 			changeTextStyle(child, options, originalTextSize);
+// 		}
+// 		// changeTextStyle(child, options, originalTextSize);
+// 	}
+// }
+
+/** Function (algorithm) to change the text of the node that is inside the link element including the link itself using the dictionary of applied rules on the page, 
+ * with the `selectorText` as keys and the font size as values; and the options imported from the background.
+ * @function
+ * @param {Element} node - The node that is inside the link element including the link itself.
+ * @param {{appliedRules: Map<string, OriginalTextSizeType | null>, options: OptionsType}} args - The arguments for the internal function. Dictionary of applied rules on the page, 
+ * with the `selectorText` as keys and the font size as values; with the the options imported from the background.
+ */
+function processAllChildren_changeNodeText(node, args) {
+	const originalTextSize = getCssRules(node, args.appliedRules);
+	changeTextStyle(node, args.options, originalTextSize);
+}
+
+/** Function to process the text of all children under the link element that has the `href` property (in case text is displayed deep within the node).
  * @function
  * @param {LinkType} link - The link element with the `href` property.
- * @param {Map<string, OriginalTextSizeType | null>} appliedRules - Dictionary of applied rules on the page, with the `selectorText` as keys and the font size as values.
- * @param {OptionsType} options - The options imported from the background.
+ * @param {{appliedRules: Map<string, OriginalTextSizeType | null>, options: OptionsType} | {}} args - The arguments for the internal function. Dictionary of applied rules on the page, 
+ * with the `selectorText` as keys and the font size as values; with the the options imported from the background. Or empty object literal.
+ * @param {(node: Element, args: {appliedRules: Map<string, OriginalTextSizeType | null>, options: OptionsType} | {}) => void} algorithm - Internal function accepting `node` and `args` as arguments.
+ * Being the node that is inside the link element including the link itself, and the arguments that the function accepts.
  * @returns {void}
  */
-function changeAllChildren(link, appliedRules, options) {
+function processAllChildren(link, args, algorithm) {
+	
+	/** Function to process all children text nodes including itself.
+	 * @function
+	 * @param {Element} node - The node that is inside the link element including the link itself.
+	 * @returns {void}
+	 */
+	const processChildrenTextNodes = (node) => {
 
-	const children = link.querySelectorAll('*');
+		const children = node.childNodes;
 
-	for (const child of children) {
-		const originalTextSize = getCssRules(child, appliedRules);
-		if (child.tagName != 'IMG') {
-			changeTextStyle(child, options, originalTextSize);
-		}
-		// changeTextStyle(child, options, originalTextSize);
+		children.forEach(child => {
+			if (child.data) {
+				if (child.data.trim() != "") {
+					// const originalTextSize = getCssRules(node, appliedRules);
+					// changeTextStyle(node, options, originalTextSize);
+					algorithm(node, args);
+				}
+			} else {
+				processChildrenTextNodes(child);
+			}
+			
+		});
+
 	}
+	
+	processChildrenTextNodes(link);
 }
 
 /** Function to highlight all the links in the page including mutated nodes.
@@ -469,18 +519,19 @@ function highlightAllLinks(response) {
 		link = replaceHrefInLink(link, options.replacementRules);
 
 		if (bookmarks.has(link.href)) {
-			const originalTextSize = getCssRules(link, appliedRules);
+			// const originalTextSize = getCssRules(link, appliedRules);
 			
 			// link.setAttribute("class", "");
 
-			if (link.tagName != 'IMG') {
-				changeTextStyle(link, options, originalTextSize);
-			}
-			// changeTextStyle(link, options, originalTextSize);
+			// if (link.tagName != 'IMG') {
+			// 	changeTextStyle(link, options, originalTextSize);
+			// }
+
 			changeOutlineStyle(link, options);
 			changeBackgroundStyle(link, options);
 
-			changeAllChildren(link, appliedRules, options);
+			// changeAllChildren(link, appliedRules, options);
+			processAllChildren(link, {appliedRules, options}, processAllChildren_changeNodeText);
 		} else {
 			if (original) {
 				link.setAttribute("style", originalStyles.get(link).style);
@@ -513,12 +564,12 @@ function highlightAllLinks(response) {
 		
 			pendingAttributes.forEach(mutation => {
 				const node = mutation.target;
-				const oldValue = mutation.oldValue;
-				const newValue = node.getAttribute("href") || node.getAttribute("data-href");
-				const style = structuredClone(node.getAttribute("style"));
 				if (!originalStyles.has(node)) {
+					const style = structuredClone(node.getAttribute("style"));
 					originalStyles.set(node, {style: style, processed: false});
 				} else {
+					const oldValue = mutation.oldValue;
+					const newValue = node.getAttribute("href") || node.getAttribute("data-href");
 					if (oldValue != newValue) {
 						originalStyles.get(node).processed = false;
 					} else {
