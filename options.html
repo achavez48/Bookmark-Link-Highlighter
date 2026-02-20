@@ -2,22 +2,13 @@
 <html lang="en">
 	<style>
 		table {
-			/* width: 0%; Make the table take full width */
-			border-collapse: collapse; /* Collapse borders for a cleaner look */
-			/* table-layout: fixed; */
+			border-collapse: collapse;
 			width: fit-content;
-			
 		}
 		th, td {
 			border: 1px solid gray;
 			padding: 8px; /* Add some padding inside cells */
 			text-align: center;
-		}
-		.fixed-width-cell {
-			width: 100px; /* Set a fixed width for this specific cell */
-		}
-		.percentage-width-column th:nth-child(2), .percentage-width-column td:nth-child(2) {
-			width: 30%; /* Set a percentage width for the second column */
 		}
 		.individual-cells {
 			border: 1px solid gray;
@@ -57,9 +48,12 @@
 			width: fit-content;
 		}
 		.dynamic-textArea {
-			/* white-space: nowrap; */
 			overflow: hidden;
 			resize: none;
+		}
+		.text-font-mono {
+			font-family: 'Courier New', Courier, monospace;
+			font-size: 10pt; /* Base font size: 12pt */
 		}
 	</style>
 
@@ -68,252 +62,312 @@
 	</head>
 
 	<body style="background-color: white;">
-		
-		<div id="options-page-title">
-			<table>
-				<tr>
-					<td style="border: none;">
-						<img id="icon-image" src="images/icon-options.svg" alt="BLH" width="100px">
-					</td>
-					<td style="border: none;">
-						<h2>Bookmark Link Highlighter Options</h2>
-					</td>
-				</tr>
-			</table>
-		</div>
-		
-		<div id="sample-options">
-			
-			<table>
-			
-				<tr>
-					<th><label>Element\Property</label></th>
-					<th><label>Hue</label></th>
-					<th><label>Saturation</label></th>
-					<th><label>Lightness</label></th>
-					<th><label>Size</label></th>
-					<th><label>Style</label></th>
-					<th><label>Font</label></th>
-				</tr>
+		<section id="optionsPageTitle" style="position: sticky; top:calc(-67.83px - 16px); background-color: white;">
+			<table id="pageTitle" style="background-color: white;">
+				<tbody>
+					<tr>
+						<td style="border: none;">
+							<img id="iconImage" src="images/icon-options.svg" alt="BLH" width="100px">
+						</td>
+						<td style="border: none;">
+							<h2>Bookmark Link Highlighter Options</h2>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="2" style="border: none;">
+							<table id="mainButtons">
+								<tbody>
+									<tr>
+										<td style="border: none; width: fit-content;">
+											<button id="saveOptions">Save Options</button>
+										</td>
+										<td style="border: none; width: fit-content;">
+											<button id="exportOptions">Export</button>
+										</td>
+										<td style="border: none; width: fit-content;">
+											<input id="fileInput" type="file" accept=".json">
+											<button id="importOptions">Import</button>
+										</td>
+										<td style="border: none; width: fit-content; padding-left: 100px;">
+											<button id="defaultOptions">Default</button>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+					</tr>
+
+				</tbody>
 				
-				<tr>
-					<th class="individual-cells">
-						<label for="textCheck">Text</label><br>
-						<input id="textCheck" type="checkbox", checked="true">
-					</th>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="textHueVal" class="composite-cells">0</td>
-								<td class="composite-cells"><input id="textHueSlide" class="vertical-slider" type="range" name="textHueSlide" min="0" max="359", value="0", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="textSaturationVal" class="composite-cells">100%</td>
-								<td class="composite-cells"><input id="textSaturationSlide" class="vertical-slider" type="range" name="textSaturationSlide" min="0" max="100", value="100", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="textLightnessVal" class="composite-cells">50%</td>
-								<td class="composite-cells"><input id="textLightnessSlide" class="vertical-slider" type="range" name="textLightnessSlide" min="0" max="100", value="50", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="textSizeVal" class="composite-cells">100%</td>
-								<td class="composite-cells"><input id="textSizeSlide" class="vertical-slider" type="range" name="textSizeSlide" min="10" max="200", value="100", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<label for="textStyleSelection" hidden="1">Choose a style:</label>
-						<select id="textStyleSelection">
-							<option value="">Disable</option>
-							<option value="normal">Normal</option>
-							<option value="italic">Italic</option>
-							<option value="oblique">Oblique</option>
-						</select> 
-					</td>
-					<td class="individual-cells">
-						<label for="textFontSelection" hidden="1">Choose a style:</label>
-						<select id="textFontSelection">
-							<option value="">Disable</option>
-							<option value="Arial">Arial</option>
-							<option value="'Arial Black'">Arial Black</option>
-							<option value="'Andale Mono', monospace">Andale Mono</option>
-							<option value="'Courier New'">Courier New</option>
-							<option value="'Comic Sans MS'">Comic Sans MS</option>
-							<option value="Georgia">Georgia</option>
-							<option value="Impact">Impact</option>
-							<option value="'Times New Roman'">Times New Roman</option>
-							<option value="'Trebuchet MS'">Trebuchet MS</option>
-							<option value="Verdana">Verdana</option>
-							<option value="Webdings">Webdings</option>
-						</select> 
-					</td>
-				</tr>
+			</table>
+		</section>
+		
+		<section id="sampleOptions">
+			
+			<table>
 
-				<tr>
-					<th class="individual-cells">
-						<label for="outlineCheck">Outline</label><br>
-						<input id="outlineCheck" type="checkbox", checked="true">
-					</th>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="outlineHueVal" class="composite-cells">242</td>
-								<td class="composite-cells"><input id="outlineHueSlide" class="vertical-slider" type="range" name="outlineHueSlide" min="0" max="359", value="242", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="outlineSaturationVal" class="composite-cells">100%</td>
-								<td class="composite-cells"><input id="outlineSaturationSlide" class="vertical-slider" type="range" name="outlineSaturationSlide" min="0" max="100", value="100", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="outlineLightnessVal" class="composite-cells">50%</td>
-								<td class="composite-cells"><input id="outlineLightnessSlide" class="vertical-slider" type="range" name="outlineLightnessSlide" min="0" max="100", value="50", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="outlineSizeVal" class="composite-cells">10%</td>
-								<td class="composite-cells"><input id="outlineSizeSlide" class="vertical-slider" type="range" name="outlineSizeSlide" min="10" max="200", value="10", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<label for="outlineStyleSelection" hidden="1">Choose a style:</label>
-						<select id="outlineStyleSelection">
-							<option value="dashed">Dashed</option>
-							<option value="dotted">Dotted</option>
-							<option value="double">Double</option>
-							<option value="groove">Groove</option>
-							<option value="inset">Inset</option>
-							<option value="outset">Outset</option>
-							<option value="ridge">Ridge</option>
-							<option value="solid">Solid</option>
-						</select> 
-					</td>
-					<td style="background-color: gray;"></td>
-				</tr>
+				<thead>
+					<tr>
+						<th>Element\Property</th>
+						<th>Hue</th>
+						<th>Saturation</th>
+						<th>Lightness</th>
+						<th>Size</th>
+						<th>Style</th>
+						<th>Font</th>
+					</tr>
+				</thead>
 
-				<tr>
-					<th class="individual-cells">
-						<label for="backgroundCheck">Background</label><br>
-						<input id="backgroundCheck" type="checkbox", checked="true">
-					</th>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="backgroundHueVal" class="composite-cells">112</td>
-								<td class="composite-cells"><input id="backgroundHueSlide" class="vertical-slider" type="range" name="backgroundHueSlide" min="0" max="359", value="112", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="backgroundSaturationVal" class="composite-cells">100%</td>
-								<td class="composite-cells"><input id="backgroundSaturationSlide" class="vertical-slider" type="range" name="backgroundSaturationSlide" min="0" max="100", value="100", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td class="individual-cells">
-						<table class="fixed-table">
-							<tr>
-								<td id="backgroundLightnessVal" class="composite-cells">50%</td>
-								<td class="composite-cells"><input id="backgroundLightnessSlide" class="vertical-slider" type="range" name="backgroundLightnessSlide" min="0" max="100", value="50", orient="vertical"></td>
-							</tr>
-						</table>
-					</td>
-					<td style="background-color: gray;"></td>
-					<td style="background-color: gray;"></td>
-					<td style="background-color: gray;"></td>
-				</tr>
+				<tbody>
 
+					<tr>
+						<th id="textCheckCell" class="individual-cells">
+							<label for="textCheck">Text</label><br>
+							<input id="textCheck" type="checkbox", checked="true">
+						</th>
+						<td id="textHueCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="textHueVal" class="composite-cells">0</td>
+										<td class="composite-cells"><input id="textHueSlide" class="vertical-slider" type="range" name="textHueSlide" min="0" max="359", value="0", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="textSaturationCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="textSaturationVal" class="composite-cells">100%</td>
+										<td class="composite-cells"><input id="textSaturationSlide" class="vertical-slider" type="range" name="textSaturationSlide" min="0" max="100", value="100", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="textLightnessCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="textLightnessVal" class="composite-cells">50%</td>
+										<td class="composite-cells"><input id="textLightnessSlide" class="vertical-slider" type="range" name="textLightnessSlide" min="0" max="100", value="50", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="textSizeCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="textSizeVal" class="composite-cells">100%</td>
+										<td class="composite-cells"><input id="textSizeSlide" class="vertical-slider" type="range" name="textSizeSlide" min="10" max="200", value="100", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="textStyleCell" class="individual-cells">
+							<label for="textStyleSelection" hidden="1">Choose a style:</label>
+							<select id="textStyleSelection">
+								<option value="">Disable</option>
+								<option value="normal">Normal</option>
+								<option value="italic">Italic</option>
+								<option value="oblique">Oblique</option>
+							</select> 
+						</td>
+						<td id="textFontCell" class="individual-cells">
+							<label for="textFontSelection" hidden="1">Choose a style:</label>
+							<select id="textFontSelection">
+								<option value="">Disable</option>
+								<option value="Arial">Arial</option>
+								<option value="'Arial Black'">Arial Black</option>
+								<option value="'Andale Mono', monospace">Andale Mono</option>
+								<option value="'Courier New'">Courier New</option>
+								<option value="'Comic Sans MS'">Comic Sans MS</option>
+								<option value="Georgia">Georgia</option>
+								<option value="Impact">Impact</option>
+								<option value="'Times New Roman'">Times New Roman</option>
+								<option value="'Trebuchet MS'">Trebuchet MS</option>
+								<option value="Verdana">Verdana</option>
+								<option value="Webdings">Webdings</option>
+							</select> 
+						</td>
+					</tr>
+
+					<tr>
+						<th id="outlineCheckCell" class="individual-cells">
+							<label for="outlineCheck">Outline</label><br>
+							<input id="outlineCheck" type="checkbox", checked="true">
+						</th>
+						<td id="outlineHueCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="outlineHueVal" class="composite-cells">242</td>
+										<td class="composite-cells"><input id="outlineHueSlide" class="vertical-slider" type="range" name="outlineHueSlide" min="0" max="359", value="242", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="outlineSaturationCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="outlineSaturationVal" class="composite-cells">100%</td>
+										<td class="composite-cells"><input id="outlineSaturationSlide" class="vertical-slider" type="range" name="outlineSaturationSlide" min="0" max="100", value="100", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="outlineLightnessCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="outlineLightnessVal" class="composite-cells">50%</td>
+										<td class="composite-cells"><input id="outlineLightnessSlide" class="vertical-slider" type="range" name="outlineLightnessSlide" min="0" max="100", value="50", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="outlineSizeCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="outlineSizeVal" class="composite-cells">10%</td>
+										<td class="composite-cells"><input id="outlineSizeSlide" class="vertical-slider" type="range" name="outlineSizeSlide" min="10" max="200", value="10", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="outlineStyleCell" class="individual-cells">
+							<label for="outlineStyleSelection" hidden="1">Choose a style:</label>
+							<select id="outlineStyleSelection">
+								<option value="dashed">Dashed</option>
+								<option value="dotted">Dotted</option>
+								<option value="double">Double</option>
+								<option value="groove">Groove</option>
+								<option value="inset">Inset</option>
+								<option value="outset">Outset</option>
+								<option value="ridge">Ridge</option>
+								<option value="solid">Solid</option>
+							</select> 
+						</td>
+						<td style="background-color: gray;"></td>
+					</tr>
+
+					<tr>
+						<th id="backgroundCheckCell" class="individual-cells">
+							<label for="backgroundCheck">Background</label><br>
+							<input id="backgroundCheck" type="checkbox", checked="true">
+						</th>
+						<td id="backgroundHueCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="backgroundHueVal" class="composite-cells">112</td>
+										<td class="composite-cells"><input id="backgroundHueSlide" class="vertical-slider" type="range" name="backgroundHueSlide" min="0" max="359", value="112", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="backgroundSaturationCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="backgroundSaturationVal" class="composite-cells">100%</td>
+										<td class="composite-cells"><input id="backgroundSaturationSlide" class="vertical-slider" type="range" name="backgroundSaturationSlide" min="0" max="100", value="100", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td id="backgroundLightnessCell" class="individual-cells">
+							<table class="fixed-table">
+								<tbody>
+									<tr>
+										<td id="backgroundLightnessVal" class="composite-cells">50%</td>
+										<td class="composite-cells"><input id="backgroundLightnessSlide" class="vertical-slider" type="range" name="backgroundLightnessSlide" min="0" max="100", value="50", orient="vertical"></td>
+									</tr>
+								</tbody>
+							</table>
+						</td>
+						<td style="background-color: gray;"></td>
+						<td style="background-color: gray;"></td>
+						<td style="background-color: gray;"></td>
+					</tr>
+
+				</tbody>
 			</table>
 
-		</div>
+		</section>
 		
 		<hr>
 
-		<div id="sample-text">
+		<section id="sampleText">
 			<table>
-				<tr>
-					<td style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Sample:</label></td>
-					<td><p id="sampleText1" style="inline-size: fit-content;">Link Text 1</p></td>
-					<td><p id="sampleText2" style="inline-size: fit-content; font-size: 2em; ">Link Text 2</p></td>
-				</tr>
-			<table>
-		</div>
-		
-		<hr>
-
-		<div id="pattern-search">
-			<table class="dynamic-table">
-				<tr>
-					<th><label>Host Names*</label></th>
-					<th><label>Patterns to Replace (Regex)</label></th>
-					<th><label>Replacements</label></th>
-				</tr>
-				<tr>
-					<th><textarea id="hostNames" class="dynamic-textArea" style="min-width: 174px; min-height: 54px;" placeholder="twitter.com&#13;www.youtube.com"></textarea></th>
-					<th><textarea id="patternsToReplace" class="dynamic-textArea" style="min-width: 252px; min-height: 54px;" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea></th>
-					<th><textarea id="replacements" class="dynamic-textArea" style="min-width: 154px; min-height: 54px;" placeholder="x.com&#13;$1$2"></textarea></th>
-				</tr>
+				<tbody>
+					<tr>
+						<td style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Sample:</label></td>
+						<td><p id="sampleText1" style="inline-size: fit-content;">Link Text 1</p></td>
+						<td><p id="sampleText2" style="inline-size: fit-content; font-size: 2em; ">Link Text 2</p></td>
+					</tr>
+				</tbody>
 			</table>
-		</div>
+		</section>
 		
 		<hr>
 
-		<div id="link-samples">
+		<section id="patternSearch">
 			<table class="dynamic-table">
-				<tr>
-					<th style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Test Links (Input)</label></th>
-					<th style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Replaced Links (Output)</label></th>
-				</tr>
-				<tr>
-					<td><textarea id="testLinks" class="dynamic-textArea" style="min-width: 443px; min-height: 100px;" placeholder="https://www.youtube.com/watch?v=video_id&list=list_id&index=2&#13;https://twitter.com/some_user"></textarea></td>
-					<td><textarea id="replacedLinks" class="dynamic-textArea" style="min-width: 294px; min-height: 100px;" placeholder="https://www.youtube.com/watch?v=video_id&#13;https://x.com/some_user" readonly></textarea></td>
-				</tr>
-			<table>
-		</div>
+				<thead>
+					<tr>
+						<th id="hostNamesCell"><label>Host Names*</label></th>
+						<th id="patternsToReplaceCell"><label>Patterns to Replace (Regex)</label></th>
+						<th id="replacementsCell"><label>Replacements</label></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th><textarea id="hostNames" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(144px * 10 / 12 + 60px); min-height: calc(32px * 10 / 12 + 20px);" placeholder="twitter.com&#13;www.youtube.com"></textarea></th>
+						<th><textarea id="patternsToReplace" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(326.4px * 10 / 12); min-height: calc(32px * 10 / 12 + 20px);" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea></th>
+						<th><textarea id="replacements" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(48px * 10 / 12 + 120px); min-height: calc(32px * 10 / 12 + 20px);" placeholder="x.com&#13;$1$2"></textarea></th>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+		
+		<hr>
 
-		<div>
-			<p>
+		<section id="linkSamples">
+			<table class="dynamic-table">
+				<thead>
+					<tr>
+						<th id="testLinksCell" style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Test Links (Input)</label></th>
+						<th id="replacedLinksCell" style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Replaced Links (Output)</label></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td><textarea id="testLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(585.6px * 10 / 12); min-height: calc(32px * 10 / 12 + 60px);" placeholder="https://www.youtube.com/watch?v=video_id&list=list_id&index=2&#13;https://twitter.com/some_user"></textarea></td>
+						<td><textarea id="replacedLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(384px * 10 / 12); min-height: calc(32px * 10 / 12 + 60px);" placeholder="https://www.youtube.com/watch?v=video_id&#13;https://x.com/some_user" readonly></textarea></td>
+					</tr>
+				</tbody>
+			</table>
+		</section>
+
+		<section id="instructions">
+			<p style="margin-bottom: unset;">
 				* If an external link host is included in the list but the current host page is not in the list the link is not replaced.<br>
 				Like changing a twitter link "twitter.com/some_user" to an X link "x.com/some_user" in a current host "www.youtube.com".<br>
 				To replace external links in such scenario, include a dummy host name belonging to the current page and give simple rules.<br>
-				Ex:<br>
-				Host Name = www.youtube.com<br>
-				Patterns to Replace = //gi<br>
-				Replacement = (empty)<br>
-				<br>
+				Ex:
+			</p>
+
+			<pre class="text-font-mono" style="margin:unset;">	Host Name = www.youtube.com<br>	Patterns to Replace = //gi<br>	Replacement = (empty)</pre>
+			
+			<p>
 				If the current host name also has rules then this step is not necessary.
 			</p>
-		</div>
+		</section>
 		
-		<div id="save-button">
-			<button id="saveOptions" style="margin-top: 2em; margin-bottom: 2em; inline-size: fit-content;">Save Options</button>
-		</div>
-		
-		<script src="js/options.js"></script>
+		<script type="text/javascript" src="js/options.js"></script>
 	</body>
 </html>

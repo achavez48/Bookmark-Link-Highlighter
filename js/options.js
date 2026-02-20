@@ -32,9 +32,9 @@ class OptionsStorageType{
 	 * @param {string} replacements - The collection of spaced separated replacement patterns for each host name in a single string.
 	 * @param {string} testLinks - The collection of spaced separated test links in a single string.
 	 */
-	constructor(textCheck, textHueSlide, textSaturationSlide, textLightnessSlide, textSizeSlide, textStyleSelection, textFontSelection,
-		outlineCheck, outlineHueSlide, outlineSaturationSlide, outlineLightnessSlide, outlineSizeSlide, outlineStyleSelection, 
-		backgroundCheck, backgroundHueSlide, backgroundSaturationSlide, backgroundLightnessSlide, hostNames, patternsToReplace, replacements, testLinks) {
+	constructor(textCheck = null, textHueSlide = null, textSaturationSlide = null, textLightnessSlide = null, textSizeSlide = null, textStyleSelection = null, textFontSelection = null,
+		outlineCheck = null, outlineHueSlide = null, outlineSaturationSlide = null, outlineLightnessSlide = null, outlineSizeSlide = null, outlineStyleSelection = null, 
+		backgroundCheck = null, backgroundHueSlide = null, backgroundSaturationSlide = null, backgroundLightnessSlide = null, hostNames = null, patternsToReplace = null, replacements = null, testLinks = null) {
 		/** If the text should change or not.
 		 * @type {boolean} */
 		this.textCheck = textCheck;
@@ -107,6 +107,39 @@ class OptionsStorageType{
  */
 const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
 
+/** Constant to save the options in the storage and compare them to current values.
+ * @constant
+ */
+const savedOptions = new OptionsStorageType();
+
+/** Function to change the color of the cell when there are changes to its value.
+ * @function
+ * @param {string} cellId - Cell element ID.
+ * @param {boolean | string | null} newValue - The new value of the element.
+ * @param {boolean | string | null} oldValue - The old value of the element.
+ * @returns {void}
+ */
+function changeCellBackgroundColor(cellId, newValue, oldValue) {
+	if (newValue !== oldValue) {
+		const color = "hsl(0,100%,80%)";
+		if (document.getElementById(cellId).style.getPropertyValue("background-color") == color) {
+			return;
+		}
+		document.getElementById(cellId).style.setProperty("background-color", color);
+		return;
+	}
+	document.getElementById(cellId).style.removeProperty("background-color");
+}
+
+/** Function to change the text check cell background color.
+ * @function
+ * @returns {void}
+ */
+function changeTextCheck() {
+	const textCheck = document.getElementById('textCheck').checked;
+	changeCellBackgroundColor('textCheckCell', textCheck, savedOptions.textCheck);
+}
+
 /** Function to get the text hue value from the slider, modify the graph value and return it.
  * @function
  * @returns {string} Text hue value.
@@ -114,6 +147,7 @@ const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
 function changeTextHue() {
 	const textHue = document.getElementById('textHueSlide').value;
 	document.getElementById('textHueVal').innerText = textHue;
+	changeCellBackgroundColor('textHueCell', textHue, savedOptions.textHueSlide);
 	return textHue;
 }
 /** Function to get the text saturation value from the slider, modify the graph value and return it.
@@ -121,18 +155,20 @@ function changeTextHue() {
  * @returns {string} Text saturation value.
  */
 function changeTextSaturation() {
-	const textSaturation = document.getElementById('textSaturationSlide').value + "%";
-	document.getElementById('textSaturationVal').innerText = textSaturation;
-	return textSaturation;
+	const textSaturation = document.getElementById('textSaturationSlide').value;
+	document.getElementById('textSaturationVal').innerText = textSaturation + "%";
+	changeCellBackgroundColor('textSaturationCell', textSaturation, savedOptions.textSaturationSlide);
+	return textSaturation + "%";
 }
 /** Function to get the text lightness value from the slider, modify the graph value and return it.
  * @function
  * @returns {string} Text lightness value.
  */
 function changeTextLightness() {
-	const textLightness = document.getElementById('textLightnessSlide').value + "%";
-	document.getElementById('textLightnessVal').innerText = textLightness;
-	return textLightness;
+	const textLightness = document.getElementById('textLightnessSlide').value;
+	document.getElementById('textLightnessVal').innerText = textLightness + "%";
+	changeCellBackgroundColor('textLightnessCell', textLightness, savedOptions.textLightnessSlide);
+	return textLightness + "%";
 }
 
 /** Function to change the text color of the samples.
@@ -159,6 +195,7 @@ function changeTextColor() {
 function changeTextSize() {
 	const textSize = Number(document.getElementById('textSizeSlide').value);
 	document.getElementById('textSizeVal').innerText = textSize + "%";
+	changeCellBackgroundColor('textSizeCell', String(textSize), savedOptions.textSizeSlide);
 	if (document.getElementById('textCheck').checked == true) {
 		document.getElementById('sampleText1').style.fontSize = textSize / 100 + "em";
 		document.getElementById('sampleText2').style.fontSize = Number(fontSizeDefault.sampleText2.slice(0, -2)) * textSize / 100 + "em";
@@ -174,6 +211,7 @@ function changeTextSize() {
  */
 function changeTextStyle() {
 	const textStyle = document.getElementById('textStyleSelection').value;
+	changeCellBackgroundColor('textStyleCell', textStyle, savedOptions.textStyleSelection);
 	if (document.getElementById('textCheck').checked == true) {
 		document.getElementById('sampleText1').style.fontStyle = textStyle;
 		document.getElementById('sampleText2').style.fontStyle = textStyle;
@@ -189,6 +227,7 @@ function changeTextStyle() {
  */
 function changeTextFont() {
 	const textFont = document.getElementById('textFontSelection').value;
+	changeCellBackgroundColor('textFontCell', textFont, savedOptions.textFontSelection);
 	if (document.getElementById('textCheck').checked == true) {
 		document.getElementById('sampleText1').style.fontFamily = textFont;
 		document.getElementById('sampleText2').style.fontFamily = textFont;
@@ -199,6 +238,15 @@ function changeTextFont() {
 }
 
 
+/** Function to change the outline check cell background color.
+ * @function
+ * @returns {void}
+ */
+function changeOutlineCheck() {
+	const outlineCheck = document.getElementById('outlineCheck').checked;
+	changeCellBackgroundColor('outlineCheckCell', outlineCheck, savedOptions.outlineCheck);
+}
+
 /** Function to get the outline hue value from the slider, modify the graph value and return it.
  * @function
  * @returns {string} Outline hue value.
@@ -206,6 +254,7 @@ function changeTextFont() {
 function changeOutlineHue() {
 	const outlineHue = document.getElementById('outlineHueSlide').value;
 	document.getElementById('outlineHueVal').innerText = outlineHue;
+	changeCellBackgroundColor('outlineHueCell', outlineHue, savedOptions.outlineHueSlide);
 	return outlineHue;
 }
 /** Function to get the outline saturation value from the slider, modify the graph value and return it.
@@ -213,18 +262,20 @@ function changeOutlineHue() {
  * @returns {string} Outline saturation value.
  */
 function changeOutlineSaturation() {
-	const outlineSaturation = document.getElementById('outlineSaturationSlide').value + "%";
-	document.getElementById('outlineSaturationVal').innerText = outlineSaturation;
-	return outlineSaturation;
+	const outlineSaturation = document.getElementById('outlineSaturationSlide').value;
+	document.getElementById('outlineSaturationVal').innerText = outlineSaturation + "%";
+	changeCellBackgroundColor('outlineSaturationCell', outlineSaturation, savedOptions.outlineSaturationSlide);
+	return outlineSaturation + "%";
 }
 /** Function to get the outline lightness value from the slider, modify the graph value and return it.
  * @function
  * @returns {string} Outline lightness value.
  */
 function changeOutlineLightness() {
-	const outlineLightness = document.getElementById('outlineLightnessSlide').value + "%";
-	document.getElementById('outlineLightnessVal').innerText = outlineLightness;
-	return outlineLightness;
+	const outlineLightness = document.getElementById('outlineLightnessSlide').value;
+	document.getElementById('outlineLightnessVal').innerText = outlineLightness + "%";
+	changeCellBackgroundColor('outlineLightnessCell', outlineLightness, savedOptions.outlineLightnessSlide);
+	return outlineLightness + "%";
 }
 
 /** Function to change the outline color of the samples.
@@ -251,6 +302,7 @@ function changeOutlineColor() {
 function changeOutlineSize(){
 	const outlineSize = Number(document.getElementById('outlineSizeSlide').value);
 	document.getElementById('outlineSizeVal').innerText = outlineSize + "%";
+	changeCellBackgroundColor('outlineSizeCell', String(outlineSize), savedOptions.outlineSizeSlide);
 	if (document.getElementById('outlineCheck').checked == true) {
 		document.getElementById('sampleText1').style.outlineWidth = outlineSize / 100 + "em";
 		document.getElementById('sampleText2').style.outlineWidth = outlineSize / 100 + "em";
@@ -266,6 +318,7 @@ function changeOutlineSize(){
  */
 function changeOutlineStyle() {
 	const outlineStyle = document.getElementById('outlineStyleSelection').value;
+	changeCellBackgroundColor('outlineStyleCell', outlineStyle, savedOptions.outlineStyleSelection);
 	if (document.getElementById('outlineCheck').checked == true) {
 		document.getElementById('sampleText1').style.outlineStyle = outlineStyle;
 		document.getElementById('sampleText2').style.outlineStyle = outlineStyle;
@@ -276,6 +329,15 @@ function changeOutlineStyle() {
 }
 
 
+/** Function to change the background check cell background color.
+ * @function
+ * @returns {void}
+ */
+function changeBackgroundCheck() {
+	const backgroundCheck = document.getElementById('backgroundCheck').checked;
+	changeCellBackgroundColor('backgroundCheckCell', backgroundCheck, savedOptions.backgroundCheck);
+}
+
 /** Function to get the background hue value from the slider, modify the graph value and return it.
  * @function
  * @returns {string} Background hue value.
@@ -283,6 +345,7 @@ function changeOutlineStyle() {
 function changeBackgroundHue() {
 	const backgroundHue = document.getElementById('backgroundHueSlide').value;
 	document.getElementById('backgroundHueVal').innerText = backgroundHue;
+	changeCellBackgroundColor('backgroundHueCell', backgroundHue, savedOptions.backgroundHueSlide);
 	return backgroundHue;
 }
 /** Function to get the background saturation value from the slider, modify the graph value and return it.
@@ -290,18 +353,20 @@ function changeBackgroundHue() {
  * @returns {string} Background saturation value.
  */
 function changeBackgroundSaturation() {
-	const backgroundSaturation = document.getElementById('backgroundSaturationSlide').value + "%";
-	document.getElementById('backgroundSaturationVal').innerText = backgroundSaturation;
-	return backgroundSaturation;
+	const backgroundSaturation = document.getElementById('backgroundSaturationSlide').value;
+	document.getElementById('backgroundSaturationVal').innerText = backgroundSaturation + "%";
+	changeCellBackgroundColor('backgroundSaturationCell', backgroundSaturation, savedOptions.backgroundSaturationSlide);
+	return backgroundSaturation + "%";
 }
 /** Function to get the background lightness value from the slider, modify the graph value and return it.
  * @function
  * @returns {string} Background lightness value.
  */
 function changeBackgroundLightness() {
-	const backgroundLightness = document.getElementById('backgroundLightnessSlide').value + "%";
-	document.getElementById('backgroundLightnessVal').innerText = backgroundLightness;
-	return backgroundLightness;
+	const backgroundLightness = document.getElementById('backgroundLightnessSlide').value;
+	document.getElementById('backgroundLightnessVal').innerText = backgroundLightness + "%";
+	changeCellBackgroundColor('backgroundLightnessCell', backgroundLightness, savedOptions.backgroundLightnessSlide);
+	return backgroundLightness + "%";
 }
 
 /** Function to change the background color of the samples.
@@ -327,6 +392,7 @@ function changeBackgroundColor() {
  * @returns {void}
  */
 function changeText() {
+	changeTextCheck();
 	changeTextColor();
 	changeTextSize();
 	changeTextStyle();
@@ -337,6 +403,7 @@ function changeText() {
  * @returns {void}
  */
 function changeOutline() {
+	changeOutlineCheck();
 	changeOutlineColor();
 	changeOutlineSize();
 	changeOutlineStyle();
@@ -346,6 +413,7 @@ function changeOutline() {
  * @returns {void}
  */
 function changeBackground() {
+	changeBackgroundCheck();
 	changeBackgroundColor();
 }
 
@@ -380,22 +448,26 @@ document.getElementById('backgroundSaturationSlide').addEventListener('input', c
 document.getElementById('backgroundLightnessSlide').addEventListener('input', changeBackgroundColor);
 
 
+/** Constant for the scale of the characters for the font: 'Courier New', Courier, monospace
+ * @constant
+ */
+const characterScale = {base: 12, current: 10}; // Base: 12pt
 /** Constant for number of characters and number of pixels on the x-axis.
  * @constant
  */
-const characterWidthMetric = {pixels: 369, characters: 52};
+const characterWidthMetric = {pixels: 192, characters: 20};
 /** Constant for the ratio of pixels to characters on the x-axis.
  * @constant
  */
-const characterWidth = characterWidthMetric.pixels / characterWidthMetric.characters;
+const characterWidth = characterWidthMetric.pixels / characterWidthMetric.characters * (characterScale.current / characterScale.base);
 /** Constant for number of text rows and number of pixels on the y-axis.
  * @constant
  */
-const characterHeightMetric = {pixels: 102, rows: 7};
+const characterHeightMetric = {pixels: 36, rows: 2};
 /** Constant for the ratio of pixels to text rows on the y-axis.
  * @constant
  */
-const characterHeight = characterHeightMetric.pixels / characterHeightMetric.rows;
+const characterHeight = characterHeightMetric.pixels / characterHeightMetric.rows * (characterScale.current / characterScale.base);
 
 /** Function to adjust the element width to the max number of pixels needed for the contents.
  * @function
@@ -405,7 +477,8 @@ const characterHeight = characterHeightMetric.pixels / characterHeightMetric.row
  */
 function adjustWidth(element, numOfCharacters){    
 	const currentSize =  Math.ceil(numOfCharacters * characterWidth);
-	element.style.width = currentSize + 10 + "px";
+	// const currentSize =  numOfCharacters * characterWidth;
+	element.style.width = currentSize + "px";
 }
 
 /** Function to adjust the element height to the max number of pixels needed for the contents.
@@ -416,7 +489,8 @@ function adjustWidth(element, numOfCharacters){
  */
 function adjustHeight(element, numRows){    
 	const currentSize =  Math.ceil(numRows * characterHeight);
-	element.style.height = currentSize + 10 + "px";
+	// const currentSize =  numRows * characterHeight;
+	element.style.height = currentSize + "px";
 }
 
 /** Function to change the Test Links and also the sizes of the text areas of the Host Names, Patterns to Replace, Replacements and Replaced Links.
@@ -475,7 +549,7 @@ function changeReplacedLinks() {
 		const newFlag = patternStringToRegex[2];
 		
 		try {
-			newLink = newLink.replace(RegExp(newPattern, newFlag), replacement);
+			newLink = newLink.replace(new RegExp(newPattern, newFlag), replacement);
 		} catch (error) {
 			// Ignore error.
 		}
@@ -542,6 +616,11 @@ function changeReplacedLinks() {
 	adjustHeight(document.getElementById('testLinks'), testLinks.length);
 	adjustWidth(document.getElementById('replacedLinks'), maxWidthSize(replacedLinks));
 	adjustHeight(document.getElementById('replacedLinks'), replacedLinks.length);
+
+	changeCellBackgroundColor('hostNamesCell', document.getElementById('hostNames').value, savedOptions.hostNames);
+	changeCellBackgroundColor('patternsToReplaceCell', document.getElementById('patternsToReplace').value, savedOptions.patternsToReplace);
+	changeCellBackgroundColor('replacementsCell', document.getElementById('replacements').value, savedOptions.replacements);
+	changeCellBackgroundColor('testLinksCell', document.getElementById('testLinks').value, savedOptions.testLinks);
 }
 
 document.getElementById('hostNames').addEventListener('input', changeReplacedLinks);
@@ -558,85 +637,369 @@ function updateOptions () {
 	browser.runtime.sendMessage({ action: "updateOptions" });
 }
 
-/** Function to save the options in the storage and update the options.
+/** Function to export the options into a JSON file by sending a message to take action `exportOptions` to the background.
+ * @function
+ * @returns {void}
+ */
+function exportOptions() {
+	browser.runtime.sendMessage({ action: "exportOptions" });
+}
+
+/** Regular expression to replace commas in the alert message list.
+ * @constant
+ */
+const searchForCommasGlobally = new RegExp(",", "g");
+
+/** Function to make the set of elements in a selection field and a string of the list.
+ * @function
+ * @param {string} elementId 
+ * @returns {{set: Set<string>, string: string}}
+ */
+function selectionFieldsGetSetWithString(elementId) {
+	const list = Array.from(document.getElementById(elementId).options).map(options => options.value);
+	const set = new Set(list);
+	const string = list.toString().replace(searchForCommasGlobally, ",\n");
+	return {set: set, string: string};
+}
+
+/** Constant to store the optional values for each selection field in the options page.
+ * @constant
+ * @type {Map<string, {set: Set<string>, string: string}>}
+ */
+const selectionFields = new Map([
+	["textStyleSelection", selectionFieldsGetSetWithString("textStyleSelection")],
+	["textFontSelection", selectionFieldsGetSetWithString("textFontSelection")],
+	["outlineStyleSelection", selectionFieldsGetSetWithString("outlineStyleSelection")]
+]);
+
+/** Function to validate the existence of the keys in the dictionary and their value type.
+ * @function
+ * @param {OptionsStorageType} dictionary - The dictionary that holds the key.
+ * @param {string} key - The key that should be checked and accessed to.
+ * @param {boolean | string | null} default_value - The default value that should be returned if the key is not found.
+ * @returns {boolean | string} The value for a key, either from the existing dictionary or the default.
+ */
+function keyValidate(dictionary, key, default_value) {
+	
+	if (key in dictionary) {
+		
+		if (typeof default_value === "boolean") {
+
+			if (typeof dictionary[key] !== "boolean") {
+				alert(`"${key}" must be a non-string boolean value (true or false).\n\nCurrent value: ${dictionary[key]}`);
+				return default_value;
+			}
+
+		}
+
+		if (typeof default_value === "string") {
+
+			if (selectionFields.has(key)) {
+				if (!selectionFields.get(key).set.has(dictionary[key])) {
+					alert(`"${key}" must be a valid selection (\n${selectionFields.get(key).string}\n).\n\nCurrent value: ${dictionary[key]}`);
+					return default_value;
+				}
+			}
+
+			const default_value_isAStringNumber = !isNaN(Number(default_value)) && default_value !== "";
+
+			if (default_value_isAStringNumber) {
+				const current_value_isAStringNumber = !isNaN(Number(dictionary[key])) && dictionary[key] !== "" && typeof dictionary[key] === "string";
+				if (!current_value_isAStringNumber) {
+					alert(`"${key}" must be a string value of a number.\n\nCurrent value: ${dictionary[key]}`);
+					return default_value;
+				}
+			}
+
+		}
+
+		if (default_value === null) {
+
+			if (dictionary[key] !== "" && typeof dictionary[key] !== "string") {
+				alert(`"${key}" must be a string value.\n\nCurrent value: ${dictionary[key]}`);
+				return default_value;
+			}
+
+		}
+
+		return dictionary[key];
+
+	}
+
+	if (default_value === null) {
+		default_value = "";
+	}
+	
+	return default_value;
+
+}
+
+/** Constant to store current, stored (database or constant), or default values of all options.
+ * @constant
+ * @type {Map<string, Map<string, (dictionary: OptionsStorageType) => boolean | string | null>>}
+ */
+const gettingOptions = new Map([
+	["textCheck", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textCheck', true);}],
+		["element", dictionary => {return document.getElementById('textCheck').checked;}]
+	])],
+	["textHueSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textHueSlide', "0");}],
+		["element", dictionary => {return document.getElementById('textHueSlide').value;}]
+	])],
+	["textSaturationSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textSaturationSlide', "100");}],
+		["element", dictionary => {return document.getElementById('textSaturationSlide').value;}]
+	])],
+	["textLightnessSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textLightnessSlide', "50");}],
+		["element", dictionary => {return document.getElementById('textLightnessSlide').value;}]
+	])],
+	["textSizeSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textSizeSlide', "100");}],
+		["element", dictionary => {return document.getElementById('textSizeSlide').value;}]
+	])],
+	["textStyleSelection", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textStyleSelection', "");}],
+		["element", dictionary => {return document.getElementById('textStyleSelection').value;}]
+	])],
+	["textFontSelection", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'textFontSelection', "");}],
+		["element", dictionary => {return document.getElementById('textFontSelection').value;}]
+	])],
+
+	["outlineCheck", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'outlineCheck', true);}],
+		["element", dictionary => {return document.getElementById('outlineCheck').checked;}]
+	])],
+	["outlineHueSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'outlineHueSlide', "242");}],
+		["element", dictionary => {return document.getElementById('outlineHueSlide').value;}]
+	])],
+	["outlineSaturationSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'outlineSaturationSlide', "100");}],
+		["element", dictionary => {return document.getElementById('outlineSaturationSlide').value;}]
+	])],
+	["outlineLightnessSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'outlineLightnessSlide', "50");}],
+		["element", dictionary => {return document.getElementById('outlineLightnessSlide').value;}]
+	])],
+	["outlineSizeSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'outlineSizeSlide', "10");}],
+		["element", dictionary => {return document.getElementById('outlineSizeSlide').value;}]
+	])],
+	["outlineStyleSelection", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'outlineStyleSelection', "dashed");}],
+		["element", dictionary => {return document.getElementById('outlineStyleSelection').value;}]
+	])],
+
+	["backgroundCheck", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'backgroundCheck', true);}],
+		["element", dictionary => {return document.getElementById('backgroundCheck').checked;}]
+	])],
+	["backgroundHueSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'backgroundHueSlide', "112");}],
+		["element", dictionary => {return document.getElementById('backgroundHueSlide').value;}]
+	])],
+	["backgroundSaturationSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'backgroundSaturationSlide', "100");}],
+		["element", dictionary => {return document.getElementById('backgroundSaturationSlide').value;}]
+	])],
+	["backgroundLightnessSlide", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'backgroundLightnessSlide', "50");}],
+		["element", dictionary => {return document.getElementById('backgroundLightnessSlide').value;}]
+	])],
+
+	["hostNames", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'hostNames', null);}],
+		["element", dictionary => {return document.getElementById("hostNames").value;}]
+	])],
+	["patternsToReplace", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'patternsToReplace', null);}],
+		["element", dictionary => {return document.getElementById("patternsToReplace").value;}]
+	])],
+	["replacements", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'replacements', null);}],
+		["element", dictionary => {return document.getElementById("replacements").value;}]
+	])],
+	["testLinks", new Map([
+		["storage", dictionary => {return keyValidate(dictionary, 'testLinks', null);}],
+		["element", dictionary => {return document.getElementById("testLinks").value;}]
+	])],
+]);
+
+/** Function to get the options from a source (storage/dummy or element) and save them in the constant.
+ * @function
+ * @param {OptionsStorageType | null} options - The options retrieved from the storage or a dummy.
+ * @param {string} source - The source from where to get the options (storage/dummy or element).
+ * @returns {void}
+ */
+function getSavedOptions(options, source) {
+
+	savedOptions.textCheck = gettingOptions.get('textCheck').get(source)(options);
+	savedOptions.textHueSlide = gettingOptions.get('textHueSlide').get(source)(options);
+	savedOptions.textSaturationSlide = gettingOptions.get('textSaturationSlide').get(source)(options);
+	savedOptions.textLightnessSlide = gettingOptions.get('textLightnessSlide').get(source)(options);
+	savedOptions.textSizeSlide = gettingOptions.get('textSizeSlide').get(source)(options);
+	savedOptions.textStyleSelection = gettingOptions.get('textStyleSelection').get(source)(options);
+	savedOptions.textFontSelection = gettingOptions.get('textFontSelection').get(source)(options);
+
+	savedOptions.outlineCheck = gettingOptions.get('outlineCheck').get(source)(options);
+	savedOptions.outlineHueSlide = gettingOptions.get('outlineHueSlide').get(source)(options);
+	savedOptions.outlineSaturationSlide = gettingOptions.get('outlineSaturationSlide').get(source)(options);
+	savedOptions.outlineLightnessSlide = gettingOptions.get('outlineLightnessSlide').get(source)(options);
+	savedOptions.outlineSizeSlide = gettingOptions.get('outlineSizeSlide').get(source)(options);
+	savedOptions.outlineStyleSelection = gettingOptions.get('outlineStyleSelection').get(source)(options);
+
+	savedOptions.backgroundCheck = gettingOptions.get('backgroundCheck').get(source)(options);
+	savedOptions.backgroundHueSlide = gettingOptions.get('backgroundHueSlide').get(source)(options);
+	savedOptions.backgroundSaturationSlide = gettingOptions.get('backgroundSaturationSlide').get(source)(options);
+	savedOptions.backgroundLightnessSlide = gettingOptions.get('backgroundLightnessSlide').get(source)(options);
+
+	savedOptions.hostNames = gettingOptions.get('hostNames').get(source)(options);
+	savedOptions.patternsToReplace = gettingOptions.get('patternsToReplace').get(source)(options);
+	savedOptions.replacements = gettingOptions.get('replacements').get(source)(options);
+	savedOptions.testLinks = gettingOptions.get('testLinks').get(source)(options);
+
+}
+
+/** Function to save the options to the storage and update the options in the background.
  * @function
  * @returns {void}
  */
 function saveOptions() {
+	const source = 'element';
 	browser.storage.local.set({
-		textCheck: document.getElementById('textCheck').checked,
-		textHueSlide: document.getElementById('textHueSlide').value,
-		textSaturationSlide: document.getElementById('textSaturationSlide').value,
-		textLightnessSlide: document.getElementById('textLightnessSlide').value,
-		textSizeSlide: document.getElementById('textSizeSlide').value,
-		textStyleSelection: document.getElementById('textStyleSelection').value,
-		textFontSelection: document.getElementById('textFontSelection').value,
+		textCheck: gettingOptions.get('textCheck').get(source)(),
+		textHueSlide: gettingOptions.get('textHueSlide').get(source)(),
+		textSaturationSlide: gettingOptions.get('textSaturationSlide').get(source)(),
+		textLightnessSlide: gettingOptions.get('textLightnessSlide').get(source)(),
+		textSizeSlide: gettingOptions.get('textSizeSlide').get(source)(),
+		textStyleSelection: gettingOptions.get('textStyleSelection').get(source)(),
+		textFontSelection: gettingOptions.get('textFontSelection').get(source)(),
 
-		outlineCheck: document.getElementById('outlineCheck').checked,
-		outlineHueSlide: document.getElementById('outlineHueSlide').value,
-		outlineSaturationSlide: document.getElementById('outlineSaturationSlide').value,
-		outlineLightnessSlide: document.getElementById('outlineLightnessSlide').value,
-		outlineSizeSlide: document.getElementById('outlineSizeSlide').value,
-		outlineStyleSelection: document.getElementById('outlineStyleSelection').value,
+		outlineCheck: gettingOptions.get('outlineCheck').get(source)(),
+		outlineHueSlide: gettingOptions.get('outlineHueSlide').get(source)(),
+		outlineSaturationSlide: gettingOptions.get('outlineSaturationSlide').get(source)(),
+		outlineLightnessSlide: gettingOptions.get('outlineLightnessSlide').get(source)(),
+		outlineSizeSlide: gettingOptions.get('outlineSizeSlide').get(source)(),
+		outlineStyleSelection: gettingOptions.get('outlineStyleSelection').get(source)(),
 
-		backgroundCheck: document.getElementById('backgroundCheck').checked,
-		backgroundHueSlide: document.getElementById('backgroundHueSlide').value,
-		backgroundSaturationSlide: document.getElementById('backgroundSaturationSlide').value,
-		backgroundLightnessSlide: document.getElementById('backgroundLightnessSlide').value,
+		backgroundCheck: gettingOptions.get('backgroundCheck').get(source)(),
+		backgroundHueSlide: gettingOptions.get('backgroundHueSlide').get(source)(),
+		backgroundSaturationSlide: gettingOptions.get('backgroundSaturationSlide').get(source)(),
+		backgroundLightnessSlide: gettingOptions.get('backgroundLightnessSlide').get(source)(),
 
-        hostNames: document.getElementById('hostNames').value,
-		patternsToReplace: document.getElementById('patternsToReplace').value,
-		replacements: document.getElementById('replacements').value,
-		testLinks: document.getElementById('testLinks').value
+        hostNames: gettingOptions.get('hostNames').get(source)(),
+		patternsToReplace: gettingOptions.get('patternsToReplace').get(source)(),
+		replacements: gettingOptions.get('replacements').get(source)(),
+		testLinks: gettingOptions.get('testLinks').get(source)()
     });
 	
+	getSavedOptions(null, source);
+	changeAll();
+	changeReplacedLinks();
+
 	updateOptions();
 }
 
 /** Function to change the options page values when it loads for the first time.
  * @function
- * @param {OptionsStorageType} result - The options that come directly from the storage.
+ * @param {OptionsStorageType} options - The options that come directly from the storage.
  * @returns {void}
  */
-function changePageOptionsFromStorage(result) {
-	
-	/** Function to validate the existence of the keys in the dictionary.
-	 * @function
-	 * @param {OptionsStorageType} dictionary - The dictionary that holds the key.
-	 * @param {string} key - The key that should be checked and accessed to.
-	 * @param {boolean | string | null} default_value - The default value that should be returned if the key is not found.
-	 * @returns {boolean | string | null} The value for a key, either from the existing dictionary or the default.
-	 */
-	const keyValidate = (dictionary, key, default_value) => {if (key in dictionary) return dictionary[key]; else return default_value;}
+function changePageOptionsFromStorage(options) {
+	const source = 'storage';
 
-	document.getElementById('textCheck').checked = keyValidate(result, 'textCheck', true);
-	document.getElementById('textHueSlide').value = keyValidate(result, 'textHueSlide', "0");
-	document.getElementById('textSaturationSlide').value = keyValidate(result, 'textSaturationSlide', "100");
-	document.getElementById('textLightnessSlide').value = keyValidate(result, 'textLightnessSlide', "50");
-	document.getElementById('textSizeSlide').value = keyValidate(result, 'textSizeSlide', "100");
-	document.getElementById('textStyleSelection').value = keyValidate(result, 'textStyleSelection', "");
-	document.getElementById('textFontSelection').value = keyValidate(result, 'textFontSelection', "");
+	document.getElementById('textCheck').checked = gettingOptions.get('textCheck').get(source)(options);
+	document.getElementById('textHueSlide').value = gettingOptions.get('textHueSlide').get(source)(options);
+	document.getElementById('textSaturationSlide').value = gettingOptions.get('textSaturationSlide').get(source)(options);
+	document.getElementById('textLightnessSlide').value = gettingOptions.get('textLightnessSlide').get(source)(options);
+	document.getElementById('textSizeSlide').value = gettingOptions.get('textSizeSlide').get(source)(options);
+	document.getElementById('textStyleSelection').value = gettingOptions.get('textStyleSelection').get(source)(options);
+	document.getElementById('textFontSelection').value = gettingOptions.get('textFontSelection').get(source)(options);
 
-	document.getElementById('outlineCheck').checked = keyValidate(result, 'outlineCheck', true);
-	document.getElementById('outlineHueSlide').value = keyValidate(result, 'outlineHueSlide', "242");
-	document.getElementById('outlineSaturationSlide').value = keyValidate(result, 'outlineSaturationSlide', "100");
-	document.getElementById('outlineLightnessSlide').value = keyValidate(result, 'outlineLightnessSlide', "50");
-	document.getElementById('outlineSizeSlide').value = keyValidate(result, 'outlineSizeSlide', "10");
-	document.getElementById('outlineStyleSelection').value = keyValidate(result, 'outlineStyleSelection', "dashed");
+	document.getElementById('outlineCheck').checked = gettingOptions.get('outlineCheck').get(source)(options);
+	document.getElementById('outlineHueSlide').value = gettingOptions.get('outlineHueSlide').get(source)(options);
+	document.getElementById('outlineSaturationSlide').value = gettingOptions.get('outlineSaturationSlide').get(source)(options);
+	document.getElementById('outlineLightnessSlide').value = gettingOptions.get('outlineLightnessSlide').get(source)(options);
+	document.getElementById('outlineSizeSlide').value = gettingOptions.get('outlineSizeSlide').get(source)(options);
+	document.getElementById('outlineStyleSelection').value = gettingOptions.get('outlineStyleSelection').get(source)(options);
 
-	document.getElementById('backgroundCheck').checked = keyValidate(result, 'backgroundCheck', true);
-	document.getElementById('backgroundHueSlide').value = keyValidate(result, 'backgroundHueSlide', "112");
-	document.getElementById('backgroundSaturationSlide').value = keyValidate(result, 'backgroundSaturationSlide', "100");
-	document.getElementById('backgroundLightnessSlide').value =keyValidate(result, 'backgroundLightnessSlide', "50");
+	document.getElementById('backgroundCheck').checked = gettingOptions.get('backgroundCheck').get(source)(options);
+	document.getElementById('backgroundHueSlide').value = gettingOptions.get('backgroundHueSlide').get(source)(options);
+	document.getElementById('backgroundSaturationSlide').value = gettingOptions.get('backgroundSaturationSlide').get(source)(options);
+	document.getElementById('backgroundLightnessSlide').value = gettingOptions.get('backgroundLightnessSlide').get(source)(options);
 
 	changeAll();
 
-	document.getElementById("hostNames").value = keyValidate(result, 'hostNames', null);
-	document.getElementById("patternsToReplace").value = keyValidate(result, 'patternsToReplace', null);
-	document.getElementById("replacements").value = keyValidate(result, 'replacements', null);
-	document.getElementById("testLinks").value = keyValidate(result, 'testLinks', null);
+	document.getElementById("hostNames").value = gettingOptions.get('hostNames').get(source)(options);
+	document.getElementById("patternsToReplace").value = gettingOptions.get('patternsToReplace').get(source)(options);
+	document.getElementById("replacements").value = gettingOptions.get('replacements').get(source)(options);
+	document.getElementById("testLinks").value = gettingOptions.get('testLinks').get(source)(options);
 
 	changeReplacedLinks();
+}
+
+/** Function to import the options from a JSON file.
+ * @function
+ * @returns {void}
+ */
+async function importOptions() {
+
+	const fileInput = document.getElementById('fileInput');
+	const file = fileInput.files[0];
+
+	if (!file) {
+		alert("Select a JSON file to import.");
+		return;
+	}
+	if (file.type !== "application/json") {
+		alert("Select a JSON file to import.");
+		return;
+	}
+
+	try {
+
+		const fileContent = await file.text();
+		const importedOptions = JSON.parse(fileContent);
+
+		changePageOptionsFromStorage(importedOptions);
+
+	} catch (error) {
+		
+		console.error("Invalid JSON file: ", error);
+		alert("Invalid JSON file. Please select a valid JSON file to import.");
+
+	}
+	
+}
+
+function defaultOptions() {
+	const source = 'storage';
+	const options = new Map();
+
+	document.getElementById('textCheck').checked = gettingOptions.get('textCheck').get(source)(options);
+	document.getElementById('textHueSlide').value = gettingOptions.get('textHueSlide').get(source)(options);
+	document.getElementById('textSaturationSlide').value = gettingOptions.get('textSaturationSlide').get(source)(options);
+	document.getElementById('textLightnessSlide').value = gettingOptions.get('textLightnessSlide').get(source)(options);
+	document.getElementById('textSizeSlide').value = gettingOptions.get('textSizeSlide').get(source)(options);
+	document.getElementById('textStyleSelection').value = gettingOptions.get('textStyleSelection').get(source)(options);
+	document.getElementById('textFontSelection').value = gettingOptions.get('textFontSelection').get(source)(options);
+
+	document.getElementById('outlineCheck').checked = gettingOptions.get('outlineCheck').get(source)(options);
+	document.getElementById('outlineHueSlide').value = gettingOptions.get('outlineHueSlide').get(source)(options);
+	document.getElementById('outlineSaturationSlide').value = gettingOptions.get('outlineSaturationSlide').get(source)(options);
+	document.getElementById('outlineLightnessSlide').value = gettingOptions.get('outlineLightnessSlide').get(source)(options);
+	document.getElementById('outlineSizeSlide').value = gettingOptions.get('outlineSizeSlide').get(source)(options);
+	document.getElementById('outlineStyleSelection').value = gettingOptions.get('outlineStyleSelection').get(source)(options);
+
+	document.getElementById('backgroundCheck').checked = gettingOptions.get('backgroundCheck').get(source)(options);
+	document.getElementById('backgroundHueSlide').value = gettingOptions.get('backgroundHueSlide').get(source)(options);
+	document.getElementById('backgroundSaturationSlide').value = gettingOptions.get('backgroundSaturationSlide').get(source)(options);
+	document.getElementById('backgroundLightnessSlide').value = gettingOptions.get('backgroundLightnessSlide').get(source)(options);
+
+	changeAll();
 }
 
 /** Function to restore the options from the storage when options page is loaded.
@@ -644,8 +1007,7 @@ function changePageOptionsFromStorage(result) {
  * @returns {void}
  */
 function restoreOptions() {
-    
-	browser.storage.local.get([
+    const keys = [
 		"textCheck",
 		"textHueSlide",
 		"textSaturationSlide",
@@ -669,7 +1031,8 @@ function restoreOptions() {
 		"hostNames", 
 		"patternsToReplace", 
 		"replacements",
-		"testLinks"]).then(changePageOptionsFromStorage);
+		"testLinks"];
+	browser.storage.local.get(keys).then(result => {getSavedOptions(result, 'storage'); changePageOptionsFromStorage(result);});
 		
 }
 
@@ -677,3 +1040,7 @@ function restoreOptions() {
 document.addEventListener('DOMContentLoaded', restoreOptions);
 /** Adds a listener to the save button when it's clicked. */
 document.getElementById('saveOptions').addEventListener('click', saveOptions);
+
+document.getElementById('exportOptions').addEventListener('click', exportOptions);
+document.getElementById('importOptions').addEventListener('click', importOptions);
+document.getElementById('defaultOptions').addEventListener('click', defaultOptions);

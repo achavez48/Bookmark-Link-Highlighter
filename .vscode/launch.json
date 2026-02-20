@@ -6,7 +6,7 @@
 			"request": "launch",
 			"reAttach": true,
 			"name": "Launch localhost",
-			"url": "https://www.youtube.com/",
+			"url": "about:addons",
 			"webRoot": "${workspaceFolder}",
 			"profileDir": "C:\\Users\\lowen\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\newProfile",
 			"keepProfileChanges": true,

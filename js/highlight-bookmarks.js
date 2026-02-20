@@ -157,7 +157,7 @@ class OriginalTextSizeType {
 	 * @param {number} size - The size of the original link's text.
 	 * @param {string} unit - The unit of the original link's text.
 	 */
-	constructor (size, unit, rule) {
+	constructor (size, unit) {
 		/** The size of the original link's text. 
 		 * @type {number} */
 		this.size = size;
@@ -260,11 +260,39 @@ function getAllCssRules(styleSheets) {
  * @returns {OriginalTextSizeType | null} The CSS rule for that link element (`font-size`).
  */
 function getCssRules(element, appliedRules) {
+	let numberOfSizeSelectors = 0;
+	let sizes = [];
+	let selectors = [];
 	for (const [selector, size] of appliedRules) {
 		if (element.matches(selector)) {
-			return size;
+			// return size;
+			sizes.push(size);
+			selectors.push(selector);
+			numberOfSizeSelectors += 1;
 		}
 	}
+
+	/** Function to choose the longest string for selector.
+	 * @function
+	 * @returns {{name: string, size: OriginalTextSizeType | null}}
+	 */
+	const choosingLongestSelector = () => {
+		let index = 0;
+		let length = -1;
+		for (let i = 0; i < selectors.length; i++) {
+			if (selectors[i].length > length) {
+				length = selectors[i].length;
+				index = i;
+			}
+		}
+		return {name: selectors[index], size: sizes[index]};
+	}
+	if (numberOfSizeSelectors > 0) {
+		const selector = choosingLongestSelector();
+		return selector.size;
+	}
+
+	return null;
 }
 
 /** Function that replaces in the string the pattern and replaces it with another pattern.
@@ -296,11 +324,11 @@ function replaceStringPattern(string, rule) {
 	return newString;
 }
 
-/** Function to replace the 'href' attribute according to patterns in Regex. 
+/** Function to replace the 'href' attribute in the link according to patterns in Regex. 
  * @function
  * @param {LinkType} link - The link element with the `href` property.
  * @param {Map<string, PatternReplacementType>} replacementRules - The array mapping the host names with their replacement rules.
- * @returns {LinkType} The link element with the `href` property changed. (Either the host version or the complete URL).
+ * @returns {void}
 */
 function replaceHrefInLink(link, replacementRules) {
 
@@ -312,40 +340,42 @@ function replaceHrefInLink(link, replacementRules) {
 	 */
 	const keyValidate = (dictionary, key) => {if (dictionary.has(key)) return true; else return false;}
 
-	/** Function to replace link elements with the `href` property considering internal/external links and their replacement rules.
+	/** Function to replace the string in the link element with the `href` property considering internal/external links and their replacement rules.
 	 * @function
 	 * @param {Map<string, PatternReplacementType>} replacementRules - Dictionary of host names and their replacement rules.
 	 * @param {PatternReplacementType} rule - Current regex search pattern rule.
-	 * @returns {LinkType} New link element with it's `href` property changed if any.
+	 * @returns {string} New string for the link element for its `href` property.
 	 */
-	const replaceInDomainTest = (replacementRules, rule) => {
-		let newLink = link;
-
-		if (newLink.attributes.href.value.search(/(https:\/\/)|(http:\/\/)/gi) != -1) { // Evaluate internal/external links.
+	const replaceInDomain = (replacementRules, rule) => {
+		const newLinkStringRelative = link.attributes.href.value;
+		let newLinkString = newLinkStringRelative;
+		// TODO: make it so it search at the start of the string (^)
+		if (newLinkStringRelative.search(/(https:\/\/)|(http:\/\/)/gi) != -1) { // Evaluate internal/external links.
 			try {
-				const newHost = new URL(newLink.attributes.href.value).hostname; // For external links.
+				const newHost = new URL(newLinkStringRelative).hostname; // For external links.
 
 				if (keyValidate(replacementRules, newHost)) { // Replace external links according to actual rules.
-					newLink.href = replaceStringPattern(newLink.attributes.href.value, replacementRules.get(newHost));
+					newLinkString = replaceStringPattern(newLinkStringRelative, replacementRules.get(newHost));
 				}
 			} catch {
-				console.warn(`URL not recognized: ${newLink.attributes.href.value}`);
+				console.warn(`URL not recognized: ${newLinkStringRelative}`);
 			}
 
 		} else { // Replace internal links according to actual rules.
-			newLink.href = replaceStringPattern(newLink.attributes.href.value, rule);
+			newLinkString = replaceStringPattern(newLinkStringRelative, rule);
 		}
 
-		return newLink;
+		return newLinkString;
 	}
 
 	const hostName = document.location.hostname; // For internal links.
-	let newLink = link;
 	if (keyValidate(replacementRules, hostName)) {
-		newLink = replaceInDomainTest(replacementRules, replacementRules.get(hostName));
+		const newLink = replaceInDomain(replacementRules, replacementRules.get(hostName));
+		if (newLink !== link.attributes.href.value) {
+			link.href = newLink;
+		}
 	}
 	
-	return newLink;
 }
 
 /** Collection of functions to change the link's text size depending on the units used.
@@ -516,7 +546,7 @@ function highlightAllLinks(response) {
 		// Skip dummy / JS links.
 		if (href === "#" || href.startsWith("javascript")) return;
 
-		link = replaceHrefInLink(link, options.replacementRules);
+		replaceHrefInLink(link, options.replacementRules);
 
 		if (bookmarks.has(link.href)) {
 			// const originalTextSize = getCssRules(link, appliedRules);
@@ -531,7 +561,7 @@ function highlightAllLinks(response) {
 			changeBackgroundStyle(link, options);
 
 			// changeAllChildren(link, appliedRules, options);
-			processAllChildren(link, {appliedRules, options}, processAllChildren_changeNodeText);
+			processAllChildren(link, {appliedRules: appliedRules, options: options}, processAllChildren_changeNodeText);
 		} else {
 			if (original) {
 				link.setAttribute("style", originalStyles.get(link).style);

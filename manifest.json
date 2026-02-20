@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "Bookmark Link Highlighter",
-	"version": "1.3",
+	"version": "2.0",
 	"description": "Highlights links on a page that exist in your bookmarks.",
 	"icons": {
 		"16": "images/icon-180.svg", 
@@ -17,7 +17,8 @@
 		"bookmarks", 
 		"scripting", 
 		"activeTab", 
-		"storage"
+		"storage",
+		"downloads"
 	],
 	"browser_specific_settings": {
 		"gecko": {

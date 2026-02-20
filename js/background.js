@@ -135,8 +135,8 @@ class optionsCacheType{
 	 * @param {string} backgroundColor - The background HSL color.
 	 * @param {Map<string, PatternReplacementType>} replacementRules - The host names rules, host names are keys and the values are the pattern rules.
 	 */
-	constructor(getOptionsSaved, textCheck, textColor, textSize, textStyle, textFont, 
-		outlineCheck, outlineColor, outlineSize, outlineStyle, backgroundCheck, backgroundColor, replacementRules) {
+	constructor(getOptionsSaved = true, textCheck = null, textColor = null, textSize = null, textStyle = null, textFont = null, 
+		outlineCheck = null, outlineColor = null, outlineSize = null, outlineStyle = null, backgroundCheck = null, backgroundColor = null, replacementRules = new Map()) {
 		/** If the options saved in storage should be read.
 		 * @type {boolean} */
 		this.getOptionsSaved = getOptionsSaved;
@@ -180,24 +180,25 @@ class optionsCacheType{
 }
 
 /** Variable storing the options.
- * @var
+ * @constant
  * @type {optionsCacheType}
  */
-let optionsCache = {
-	getOptionsSaved: true,
-	textCheck: null,
-	textColor: null,
-	textSize: null,
-	textStyle: null,
-	textFont: null,
-	outlineCheck: null,
-	outlineColor: null,
-	outlineSize: null,
-	outlineStyle: null,
-	backgroundCheck: null,
-	backgroundColor: null,
-	replacementRules: new Map()
-}
+const optionsCache = new optionsCacheType();
+// let optionsCache = {
+// 	getOptionsSaved: true,
+// 	textCheck: null,
+// 	textColor: null,
+// 	textSize: null,
+// 	textStyle: null,
+// 	textFont: null,
+// 	outlineCheck: null,
+// 	outlineColor: null,
+// 	outlineSize: null,
+// 	outlineStyle: null,
+// 	backgroundCheck: null,
+// 	backgroundColor: null,
+// 	replacementRules: new Map()
+// }
 
 /** Function to compile regex rules and store them in `compiledRules`.
  * @function
@@ -205,7 +206,7 @@ let optionsCache = {
  * @returns {PatternReplacementType | null}Replacements in regex and their replacements.
  */
 function compileRules(replacementRules) {
-	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)\/([a-z]*)$/);
+	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]*)$/);
 	const newPattern = patternStringToRegex[1];
 	const newFlag = patternStringToRegex[2];
 
@@ -402,6 +403,59 @@ async function updateOptions() {
 	await getOptions();
 }
 
+/** Function to export options into a JSON file and download it.
+ * @async
+ * @returns {Promise<void>}
+ */
+async function exportOptions() {
+
+	const keys = await browser.storage.local.getKeys();
+	const optionsFromStorage = {};
+	for (const key of keys) {
+		await browser.storage.local.get(`${key}`).then(value => optionsFromStorage[key] = value[key]);
+	}
+
+	const optionsForExport = JSON.stringify(optionsFromStorage, null, "\t");
+	const blob = new Blob([optionsForExport], {type: "application/json"});
+	const optionsURL = URL.createObjectURL(blob);	
+
+	/** Collection of active downloads to listen to and revoke their URL.
+	 * @constant
+	 * @type {Map<number, string>}
+	 */
+	const activeDownloads = new Map();
+
+	/** Function to listen to the download state of the options JSON file and revoke it after completion or interruption.
+	 * @function
+	 * @param {{id: number, state: {current: string}}} download - Download item that is being listened to.
+	 * @returns {void}
+	 */
+	const downloadListenerFunction = (download) => {
+		if (activeDownloads.has(download.id) && download.state) {
+			if (download.state.current === "complete" || download.state.current === "interrupted") {
+				const url = activeDownloads.get(download.id);
+				URL.revokeObjectURL(url);
+				activeDownloads.delete(download.id);
+				browser.downloads.onChanged.removeListener(downloadListenerFunction);
+				// console.log(`Revoked URL with id (${download.id}): ${url}`);
+			}
+		}
+	}
+
+	browser.downloads.download({url: optionsURL, filename: "BLH settings.json", saveAs: true}).then((downloadId) => {
+		if (downloadId) {
+			activeDownloads.set(downloadId, optionsURL);
+			browser.downloads.onChanged.addListener(downloadListenerFunction);
+			// console.log(`Download started for URL with id (${downloadId}): ${optionsURL}`);
+		} else {
+			URL.revokeObjectURL(optionsURL);
+			browser.downloads.onChanged.removeListener(downloadListenerFunction);
+			// console.log(`Download failed for URL with id (${downloadId}): ${optionsURL}`);
+		}
+	});
+
+}
+
 /** Function to add bookmark into the bookmarks cache.
  * @function
  * @param {string} bookmarkID 
@@ -428,6 +482,7 @@ function deleteBookmarkEvent(bookmarkID, bookmarkInfo) {
  * @function
  * @param {string} bookmarkID 
  * @param {{url: string}} bookmarkInfo 
+ * @returns {void}
  */
 function changeBookmarkEvent(bookmarkID, bookmarkInfo) {
 	// It only adds the new URL, because the old one is lost in the database so it cannot be located in the cache.
@@ -437,10 +492,13 @@ function changeBookmarkEvent(bookmarkID, bookmarkInfo) {
 	}
 }
 
-/** Adds a listener to the `updateOptions` action when pressing the save button in the options page. */
+/** Adds a listener to the `updateOptions` and `exportOptions` actions when pressing the save or export button in the options page. */
 browser.runtime.onMessage.addListener((msg) => {
 	if (msg.action === "updateOptions") {
 		updateOptions();
+	}
+	if (msg.action === "exportOptions") {
+		exportOptions();
 	}
 });
 
