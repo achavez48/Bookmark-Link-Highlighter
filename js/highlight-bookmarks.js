@@ -181,9 +181,9 @@ function getOriginalTextSize(rule) {
 	
 	/** Function to return current search.
 	 * @function
-	 * @param {string} value 
-	 * @param {string} units 
-	 * @returns {OriginalTextSizeType | null}
+	 * @param {string} value - The size value as a string.
+	 * @param {string} units - The size unit as a string.
+	 * @returns {OriginalTextSizeType | null} The size value as a number and its unit.
 	 */
 	const filter = (value, units) => {
 		const size = Number(value);
@@ -226,7 +226,7 @@ function getOriginalTextSize(rule) {
 /** Function to get all the CSS rules in the page.
  * @function
  * @param {StyleSheetList} styleSheets - The stylesheet list of the page.
- * @returns {Map<string, OriginalTextSizeType | null>}
+ * @returns {Map<string, OriginalTextSizeType | null>} Map with the selector as key and the CSS text size as value.
  */
 function getAllCssRules(styleSheets) {
 	const appliedRules = new Map();
@@ -274,7 +274,7 @@ function getCssRules(element, appliedRules) {
 
 	/** Function to choose the longest string for selector.
 	 * @function
-	 * @returns {{name: string, size: OriginalTextSizeType | null}}
+	 * @returns {{name: string, size: OriginalTextSizeType | null}} Object literal of the name of the selector and the text size.
 	 */
 	const choosingLongestSelector = () => {
 		let index = 0;
@@ -380,6 +380,7 @@ function replaceHrefInLink(link, replacementRules) {
 
 /** Collection of functions to change the link's text size depending on the units used.
  * @constant
+ * Map with the text size units as keys and a function to get the new calculated size as values.
  * @type {Map<string, (element: LinkType, optionsTextSize: number, originalTextSize: number) => void>}
  */
 const setPropertyFontSize = new Map([
@@ -464,6 +465,7 @@ function changeBackgroundStyle(element, options) {
  * @param {Element} node - The node that is inside the link element including the link itself.
  * @param {{appliedRules: Map<string, OriginalTextSizeType | null>, options: OptionsType}} args - The arguments for the internal function. Dictionary of applied rules on the page, 
  * with the `selectorText` as keys and the font size as values; with the the options imported from the background.
+ * @returns {void}
  */
 function processAllChildren_changeNodeText(node, args) {
 	const originalTextSize = getCssRules(node, args.appliedRules);

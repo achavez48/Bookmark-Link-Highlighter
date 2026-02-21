@@ -184,26 +184,11 @@ class optionsCacheType{
  * @type {optionsCacheType}
  */
 const optionsCache = new optionsCacheType();
-// let optionsCache = {
-// 	getOptionsSaved: true,
-// 	textCheck: null,
-// 	textColor: null,
-// 	textSize: null,
-// 	textStyle: null,
-// 	textFont: null,
-// 	outlineCheck: null,
-// 	outlineColor: null,
-// 	outlineSize: null,
-// 	outlineStyle: null,
-// 	backgroundCheck: null,
-// 	backgroundColor: null,
-// 	replacementRules: new Map()
-// }
 
 /** Function to compile regex rules and store them in `compiledRules`.
  * @function
  * @param {{patternsToReplace: string, replacements: string}} replacementRules - Replacement patterns and replacements.
- * @returns {PatternReplacementType | null}Replacements in regex and their replacements.
+ * @returns {PatternReplacementType | null} Replacements in regex and their replacements.
  */
 function compileRules(replacementRules) {
 	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]*)$/);
@@ -293,7 +278,7 @@ function writeToOptionsCache(result) {
 
 	/** Function to map host names with their replacement rules.
 	 * @function
-	 * @returns {Map<string, PatternReplacementType>}
+	 * @returns {Map<string, PatternReplacementType>} Map with hostnames as keys and pattern replacement rules as values.
 	 */
 	const createReplacementRules = () => {
 		const hostNames = trimmingList(keyValidate(result, 'hostNames', null));
@@ -365,7 +350,7 @@ let bookmarkCache = null;
 
 /** Function to get the bookmarks from the database and the options if they are not in the cache and pack them together.
  * @async
- * @returns {Promise<{bookmarkCache: Set<string>, options: optionsCacheType}>}
+ * @returns {Promise<{bookmarkCache: Set<string>, options: optionsCacheType}>} Object literal for bookmark cache and options. 
  */
 async function getBookmarksOnce() {
 	
@@ -378,7 +363,7 @@ async function getBookmarksOnce() {
 
 	/** Function to extract the URLs from the bookmarks tree.
 	 * @function
-	 * @param {Array<{url: string, children: Array<string>, title: string}>} items 
+	 * @param {Array<{url: string, children: Array<string>, title: string}>} items - Array representing the bookmark tree.
 	 * @returns {void}
 	 */
 	const extractUrls = (items) => {
@@ -411,9 +396,11 @@ async function exportOptions() {
 
 	const keys = await browser.storage.local.getKeys();
 	const optionsFromStorage = {};
-	for (const key of keys) {
-		await browser.storage.local.get(`${key}`).then(value => optionsFromStorage[key] = value[key]);
-	}
+	await browser.storage.local.get(keys).then(value => {
+		for (const key of keys) {
+			optionsFromStorage[key] = value[key];
+		}
+	});
 
 	const optionsForExport = JSON.stringify(optionsFromStorage, null, "\t");
 	const blob = new Blob([optionsForExport], {type: "application/json"});

@@ -523,7 +523,7 @@ function changeReplacedLinks() {
 	 * @param {Array<string>} hostNames - The host names array list.
 	 * @param {Array<string>} patterns - The search patterns array list.
 	 * @param {Array<string>} replacements - The replacements array list.
-	 * @returns {boolean}
+	 * @returns {boolean} If the 3 inputs have the same number of rows.
 	 */
 	const inputValidation = (hostNames, patterns, replacements) => {
 		if (hostNames.length != patterns.length || hostNames.length != replacements.length) {
@@ -537,7 +537,7 @@ function changeReplacedLinks() {
 	 * @param {string} link - The test link text.
 	 * @param {string} pattern - The pattern to search in the test link.
 	 * @param {string} replacement - The replacement for the test link.
-	 * @returns {string}
+	 * @returns {string} The new string.
 	 */
 	const replaceInDomainTest = (link, pattern, replacement) => {
 		let newLink = link;
@@ -652,8 +652,8 @@ const searchForCommasGlobally = new RegExp(",", "g");
 
 /** Function to make the set of elements in a selection field and a string of the list.
  * @function
- * @param {string} elementId 
- * @returns {{set: Set<string>, string: string}}
+ * @param {string} elementId - The id of the element in the options page from which the optional values are taken.
+ * @returns {{set: Set<string>, string: string}} Object literal for the list of options as set and as a string.
  */
 function selectionFieldsGetSetWithString(elementId) {
 	const list = Array.from(document.getElementById(elementId).options).map(options => options.value);
@@ -664,6 +664,7 @@ function selectionFieldsGetSetWithString(elementId) {
 
 /** Constant to store the optional values for each selection field in the options page.
  * @constant
+ * Map for the options (in options page) that have optional values, with a function as value to return the set of available values and their string representation.
  * @type {Map<string, {set: Set<string>, string: string}>}
  */
 const selectionFields = new Map([
