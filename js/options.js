@@ -101,6 +101,24 @@ class OptionsStorageType{
 	}
 }
 
+/** Class for the options' host patterns to replace and the replacements. 
+ * @class */
+class PatternReplacementType {
+	/**
+	 * Creates an instance of `PatternReplacementType`.
+	 * @param {RegExp} patternsToReplace - The patterns to replace in regex on and for the host name.
+	 * @param {string} replacements - The replacement patterns on and for the host name.
+	 */
+	constructor (patternsToReplace, replacements) {
+		/** The patterns to replace in regex on and for the host name. 
+		 * @type {RegExp} */
+		this.patternsToReplace = patternsToReplace;
+		/** The replacement patterns on and for the host name. 
+		 * @type {string} */
+		this.replacements = replacements;
+	}
+}
+
 
 /** Constant containing the original text sizes from the sample.
  * @constant
@@ -473,6 +491,59 @@ document.getElementById('backgroundSaturationSlide').addEventListener('input', c
 document.getElementById('backgroundLightnessSlide').addEventListener('input', changeBackgroundColor);
 
 
+/** Function to compile regex rules and store them in `compiledRules`.
+ * @function
+ * @param {{patternsToReplace: string, replacements: string}} replacementRules - Replacement patterns and replacements.
+ * @param {Set<number>} patternsToReplaceErrorLines
+ * @param {number} line
+ * @returns {PatternReplacementType | null} Replacements in regex and their replacements.
+ */
+function compileRules(replacementRules, patternsToReplaceErrorLines, line) {
+	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]+)$/);
+
+	if (patternStringToRegex) {
+		const newPattern = patternStringToRegex[1];
+		const newFlag = patternStringToRegex[2];
+		try {
+			return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRules.replacements);
+		} catch (error) {
+			// Ignore error.
+			patternsToReplaceErrorLines.add(line + 1);
+			return null;
+		}
+	}
+	return null;
+}
+
+/** Function that replaces in the string the pattern and replaces it with another pattern.
+ * @function
+ * @param {string} string - The original string to be changed.
+ * @param {PatternReplacementType | null} rule - The host regex patterns to replace and the replacements.
+ * @returns {string} The string with the pattern replacements.
+ * @example
+ * // Example 1:
+ * const newString1 = replaceStringPattern("https://www.youtube.com/watch?v=video_ID&list=list_ID&index=2", "/(\/watch\?v=)(.*)&list=(.*)$/gi", "$1$2");
+ * console.log(newString1); // Expected output: https://www.youtube.com/watch?v=video_ID
+ *  // Example 2:
+ * const newString2 = replaceStringPattern("https://twitter.com/some_user", "/twitter.com/gi", "x.com");
+ * console.log(newString2); // Expected output: https://x.com/some_user
+ *  // Example 3:
+ * const newString3 = replaceStringPattern("/posts?tags=some_tag", "/(\/en\/posts\?tags=)|(\/posts\?tags=)/gi", "/en/?tags=");
+ * console.log(newString3); // Expected output: /en/?tags=some_tag
+ */
+function replaceStringPattern(string, rule) {
+	let newString = string;
+	if (rule == null){
+		return newString;
+	}
+	try {
+		newString = newString.replace(rule.patternsToReplace, rule.replacements);
+	} catch (error) {
+		// Ignore error.
+	}
+	return newString;
+}
+
 /** Constant for the scale of the characters for the font: 'Courier New', Courier, monospace
  * @constant
  */
@@ -528,6 +599,14 @@ function adjustHeight(element, numOfRows){
  */
 function changeReplacedLinks() {
 	
+	/** Function to validate the key string in the rule dictionary.
+	 * @function
+	 * @param {Map<string, PatternReplacementType>} dictionary - Rule dictionary.
+	 * @param {string} key - Key for the rule dictionary.
+	 * @returns {boolean} If key exists in the rule dictionary.
+	 */
+	const keyValidate = (dictionary, key) => {if (dictionary.has(key)) return true; else return false;}
+
 	/** Function to make list into an array and trim each element.
 	 * @function
 	 * @param {string} id - The id of the element.
@@ -541,68 +620,51 @@ function changeReplacedLinks() {
 		}
 		return newList;
 	}
-	const hostNames = trimmingList('hostNames'); //TODO: Make it a map
-	const patterns = trimmingList('patternsToReplace');
+
+	const hostNames = trimmingList('hostNames');
+	const patternsToReplace = trimmingList('patternsToReplace');
 	const replacements = trimmingList('replacements');
-	const testLinks = trimmingList('testLinks'); //TODO: Make them into URL class objects instead of pure text to search for host names
+	/** The map for each hostName and its replacement rules.
+	 * @type {Map<string, PatternReplacementType | null>}
+	 */
+	const replacementRules = new Map();
+	const testLinks = trimmingList('testLinks');
 	const replacedLinks = new Array(testLinks.length);
 	const patternsToReplaceErrorLines = new Set();
 
-	/** Function to validate inputs on the host names, search patterns and replacements.
-	 * @function
-	 * @param {Array<string>} hostNames - The host names array list.
-	 * @param {Array<string>} patterns - The search patterns array list.
-	 * @param {Array<string>} replacements - The replacements array list.
-	 * @returns {boolean} If the 3 inputs have the same number of rows.
-	 */
-	const inputValidation = (hostNames, patterns, replacements) => {
-		if (hostNames.length != patterns.length || hostNames.length != replacements.length) {
-			return false;
-		}
-		return true;
-	}
-
-	/** Function to replace the test link text according to the replacement rules.
-	 * @function
-	 * @param {string} link - The test link text.
-	 * @param {string} pattern - The pattern to search in the test link.
-	 * @param {string} replacement - The replacement for the test link.
-	 * @param {number} position - The position of the pattern in the list.
-	 * @returns {string} The new string.
-	 */
-	const replaceInDomainTest = (link, pattern, replacement, position) => {
-		let newLink = link;
-		const patternStringToRegex = pattern.match(/^\/(.+)?\/([a-z]+)$/);
-		if (patternStringToRegex == null){
-			return newLink;
-		}
-		const newPattern = patternStringToRegex[1];
-		const newFlag = patternStringToRegex[2];
-		
-		try {
-			newLink = newLink.replace(new RegExp(newPattern, newFlag), replacement);//TODO: Generate regex before trying replacements to deliver earlier error reports rather than relying on test links.
-		} catch (error) {
-			// Ignore error.
-			patternsToReplaceErrorLines.add(position + 1);
-		}
-		return newLink;
-	}
-
-	let linkCount = 0;
-	for (const testLink of testLinks) {
-		if (inputValidation(hostNames, patterns, replacements)) {
-			for (let i = 0; i < hostNames.length; i++) {
-				if (testLink.search(hostNames[i]) != -1) {
-					replacedLinks[linkCount] = replaceInDomainTest(testLink, patterns[i], replacements[i], i);
-				}
+	const createReplacementRules = () => {
+		for (let i = 0; i < hostNames.length; i++) {
+			if (hostNames[i] !== "" && patternsToReplace.length > i && replacements.length > i) {
+				replacementRules.set(hostNames[i], compileRules({patternsToReplace: patternsToReplace[i], replacements: replacements[i]}, patternsToReplaceErrorLines, i));
 			}
 		}
+	}
+	createReplacementRules();
+
+	/** Function to replace the string in the link element with the `href` property considering internal/external links and their replacement rules.
+	 * @function
+	 * @param {string} linkString
+	 * @param {Map<string, PatternReplacementType>} replacementRules - Dictionary of host names and their replacement rules.
+	 * @returns {string} New string for the link element for its `href` property.
+	 */
+	const replaceInDomain = (linkString, replacementRules) => {
+		let newLinkString = linkString;
 		
-		if (replacedLinks[linkCount] == null) {
-			replacedLinks[linkCount] = testLink;
+		try {
+			const hostName = new URL(newLinkString).hostname;
+
+			if (keyValidate(replacementRules, hostName)) {
+				newLinkString = replaceStringPattern(newLinkString, replacementRules.get(hostName));
+			}
+		} catch {
+			// Ignore error.
 		}
 
-		linkCount += 1;
+		return newLinkString;
+	}
+
+	for (let i = 0; i < testLinks.length; i++) {
+		replacedLinks[i] = replaceInDomain(testLinks[i], replacementRules);
 	}
 
 	/** Function to make the array list of strings into a single string with values separated by new lines.
@@ -641,8 +703,8 @@ function changeReplacedLinks() {
 
 	adjustWidth(document.getElementById('hostNames'), maxWidthSize(hostNames));
 	adjustHeight(document.getElementById('hostNames'), hostNames.length);
-	adjustWidth(document.getElementById('patternsToReplace'), maxWidthSize(patterns));
-	adjustHeight(document.getElementById('patternsToReplace'), patterns.length);
+	adjustWidth(document.getElementById('patternsToReplace'), maxWidthSize(patternsToReplace));
+	adjustHeight(document.getElementById('patternsToReplace'), patternsToReplace.length);
 	adjustWidth(document.getElementById('replacements'), maxWidthSize(replacements));
 	adjustHeight(document.getElementById('replacements'), replacements.length);
 
@@ -687,7 +749,6 @@ function changeReplacedLinks() {
 	 * @returns {void}
 	 */
 	const processClassLineNumbers = (className, numberOfLines, numberOfLinesFloor) => {
-		// const numbersArray = Array.from({length: numberOfLines}, (_, i) => i + 1);
 		const elementsArray = Array.from(document.getElementsByClassName(className));
 		if (numberOfLines > numberOfLinesFloor) {
 			const numbersArray = Array.from({length: numberOfLines}, (_, i) => i + 1);
@@ -707,12 +768,12 @@ function changeReplacedLinks() {
 
 	}
 	processClassLineNumbers('hostNamesLineNumbers', hostNames.length, 3);
-	processClassLineNumbers('patternsToReplaceLineNumbers', patterns.length, 3);
+	processClassLineNumbers('patternsToReplaceLineNumbers', patternsToReplace.length, 3);
 	processClassLineNumbers('replacementsLineNumbers', replacements.length, 3);
 	processClassLineNumbers('linkSamplesLineNumbers', testLinks.length, 6);
 
 }
-
+//TODO: Make global consts for the 4 and only call change function when individual changes occur.
 document.getElementById('hostNames').addEventListener('input', changeReplacedLinks);
 document.getElementById('patternsToReplace').addEventListener('input', changeReplacedLinks);
 document.getElementById('replacements').addEventListener('input', changeReplacedLinks);

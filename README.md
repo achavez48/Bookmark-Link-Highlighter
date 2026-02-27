@@ -28,4 +28,4 @@ To change external links in a host name that also has rules no dummy is necessar
 - Replaced Links = (Inside Youtube host) -> `https://x.com/user, /watch?v=VIDEO_ID`
 
 ## Sources
-Icon made with Inkscape, big thanks to their software.
+Icon made with [Inkscape](https://inkscape.org/), big thanks to their software.

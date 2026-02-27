@@ -192,10 +192,12 @@ const optionsCache = new optionsCacheType();
  */
 function compileRules(replacementRules) {
 	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]+)$/);
-	const newPattern = patternStringToRegex[1];
-	const newFlag = patternStringToRegex[2];
+	// const newPattern = patternStringToRegex[1];
+	// const newFlag = patternStringToRegex[2];
 
 	if (patternStringToRegex) {
+		const newPattern = patternStringToRegex[1];
+		const newFlag = patternStringToRegex[2];
 		try {
 			return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRules.replacements);
 		} catch (error) {
