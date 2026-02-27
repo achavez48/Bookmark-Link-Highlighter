@@ -112,6 +112,31 @@ const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
  */
 const savedOptions = new OptionsStorageType();
 
+/** Constant to store the windowID and the tabID of the current options page.
+ * @constant
+ * @type {{windowID: number, tabID: number}}
+ */
+const currentOptionsPageInfo = {windowID: null, tabID: null};
+
+/** Function to collect the current windowID and tabID of the options page and send it to the background.
+ * @async
+ * @returns {Promise<void>}
+ */
+async function registerOptionsPageWindow() {
+	const [currentTab] = await browser.tabs.query({ active: true, lastFocusedWindow: true });
+	currentOptionsPageInfo.windowID = currentTab.windowId;
+	currentOptionsPageInfo.tabID = currentTab.id;
+	browser.runtime.sendMessage({ action: "registerWindowsWithOptionsPageOpened", windowOpened: currentOptionsPageInfo });
+}
+
+/** Function to unregister the current windowID of the closed option page by sending it to the background.
+ * @function
+ * @returns {void}
+ */
+function unRegisterOptionsPageWindow() {
+	browser.runtime.sendMessage({ action: "unRegisterWindowsWithOptionsPageOpened", windowClosed: currentOptionsPageInfo.windowID });
+}
+
 /** Function to change the color of the cell when there are changes to its value.
  * @function
  * @param {string} cellId - Cell element ID.
@@ -459,7 +484,8 @@ const characterWidthMetric = {pixels: 192, characters: 20};
 /** Constant for the ratio of pixels to characters on the x-axis.
  * @constant
  */
-const characterWidth = characterWidthMetric.pixels / characterWidthMetric.characters * (characterScale.current / characterScale.base);
+const characterWidth = Math.ceil(characterWidthMetric.pixels / characterWidthMetric.characters * (characterScale.current / characterScale.base));
+// const characterWidth = characterWidthMetric.pixels / characterWidthMetric.characters * (characterScale.current / characterScale.base);
 /** Constant for number of text rows and number of pixels on the y-axis.
  * @constant
  */
@@ -467,7 +493,8 @@ const characterHeightMetric = {pixels: 36, rows: 2};
 /** Constant for the ratio of pixels to text rows on the y-axis.
  * @constant
  */
-const characterHeight = characterHeightMetric.pixels / characterHeightMetric.rows * (characterScale.current / characterScale.base);
+const characterHeight = Math.ceil(characterHeightMetric.pixels / characterHeightMetric.rows * (characterScale.current / characterScale.base));
+// const characterHeight = characterHeightMetric.pixels / characterHeightMetric.rows * (characterScale.current / characterScale.base);
 
 /** Function to adjust the element width to the max number of pixels needed for the contents.
  * @function
@@ -476,21 +503,23 @@ const characterHeight = characterHeightMetric.pixels / characterHeightMetric.row
  * @returns {void}
  */
 function adjustWidth(element, numOfCharacters){    
-	const currentSize =  Math.ceil(numOfCharacters * characterWidth);
-	// const currentSize =  numOfCharacters * characterWidth;
-	element.style.width = currentSize + "px";
+	// const currentSize =  Math.ceil(numOfCharacters * characterWidth);
+	const currentSize =  numOfCharacters * characterWidth;
+	const currentSizeString = currentSize + "px";
+	if (currentSizeString !== element.style.width) element.style.width = currentSizeString;
 }
 
 /** Function to adjust the element height to the max number of pixels needed for the contents.
  * @function
  * @param {HTMLElement} element - Element to be adjusted.
- * @param {number} numRows - Number of rows.
+ * @param {number} numOfRows - Number of rows.
  * @returns {void}
  */
-function adjustHeight(element, numRows){    
-	const currentSize =  Math.ceil(numRows * characterHeight);
-	// const currentSize =  numRows * characterHeight;
-	element.style.height = currentSize + "px";
+function adjustHeight(element, numOfRows){    
+	// const currentSize =  Math.ceil(numOfRows * characterHeight);
+	const currentSize =  numOfRows * characterHeight;
+	const currentSizeString = currentSize + "px";
+	if (currentSizeString !== element.style.height) element.style.height = currentSizeString;
 }
 
 /** Function to change the Test Links and also the sizes of the text areas of the Host Names, Patterns to Replace, Replacements and Replaced Links.
@@ -512,11 +541,12 @@ function changeReplacedLinks() {
 		}
 		return newList;
 	}
-	const hostNames = trimmingList('hostNames');
+	const hostNames = trimmingList('hostNames'); //TODO: Make it a map
 	const patterns = trimmingList('patternsToReplace');
 	const replacements = trimmingList('replacements');
-	const testLinks = trimmingList('testLinks');
+	const testLinks = trimmingList('testLinks'); //TODO: Make them into URL class objects instead of pure text to search for host names
 	const replacedLinks = new Array(testLinks.length);
+	const patternsToReplaceErrorLines = new Set();
 
 	/** Function to validate inputs on the host names, search patterns and replacements.
 	 * @function
@@ -537,11 +567,12 @@ function changeReplacedLinks() {
 	 * @param {string} link - The test link text.
 	 * @param {string} pattern - The pattern to search in the test link.
 	 * @param {string} replacement - The replacement for the test link.
+	 * @param {number} position - The position of the pattern in the list.
 	 * @returns {string} The new string.
 	 */
-	const replaceInDomainTest = (link, pattern, replacement) => {
+	const replaceInDomainTest = (link, pattern, replacement, position) => {
 		let newLink = link;
-		const patternStringToRegex = pattern.match(/^\/(.+)\/([a-z]*)$/);
+		const patternStringToRegex = pattern.match(/^\/(.+)?\/([a-z]+)$/);
 		if (patternStringToRegex == null){
 			return newLink;
 		}
@@ -549,9 +580,10 @@ function changeReplacedLinks() {
 		const newFlag = patternStringToRegex[2];
 		
 		try {
-			newLink = newLink.replace(new RegExp(newPattern, newFlag), replacement);
+			newLink = newLink.replace(new RegExp(newPattern, newFlag), replacement);//TODO: Generate regex before trying replacements to deliver earlier error reports rather than relying on test links.
 		} catch (error) {
 			// Ignore error.
+			patternsToReplaceErrorLines.add(position + 1);
 		}
 		return newLink;
 	}
@@ -561,7 +593,7 @@ function changeReplacedLinks() {
 		if (inputValidation(hostNames, patterns, replacements)) {
 			for (let i = 0; i < hostNames.length; i++) {
 				if (testLink.search(hostNames[i]) != -1) {
-					replacedLinks[linkCount] = replaceInDomainTest(testLink, patterns[i], replacements[i]);
+					replacedLinks[linkCount] = replaceInDomainTest(testLink, patterns[i], replacements[i], i);
 				}
 			}
 		}
@@ -570,7 +602,7 @@ function changeReplacedLinks() {
 			replacedLinks[linkCount] = testLink;
 		}
 
-		linkCount += 1;		
+		linkCount += 1;
 	}
 
 	/** Function to make the array list of strings into a single string with values separated by new lines.
@@ -579,14 +611,16 @@ function changeReplacedLinks() {
 	 * @returns {string} The single string list.
 	 */
 	const createNewList = (list) => {
-		let newList = "";
-		newList = newList.concat(list[0]);
-		if (list.length > 0) {
-			for (let i = 1; i < list.length; i++) {
-				newList = newList.concat("\n" + list[i]);
-			}
-		}
-		return newList
+		// let newList = "";
+		// newList = newList.concat(list[0]);
+		// if (list.length > 0) {
+		// 	for (let i = 1; i < list.length; i++) {
+		// 		newList = newList.concat("\n" + list[i]);
+		// 	}
+		// }
+		// return newList
+
+		return list.join("\n");
 	}
 	document.getElementById('replacedLinks').value = createNewList(replacedLinks);
 
@@ -621,6 +655,62 @@ function changeReplacedLinks() {
 	changeCellBackgroundColor('patternsToReplaceCell', document.getElementById('patternsToReplace').value, savedOptions.patternsToReplace);
 	changeCellBackgroundColor('replacementsCell', document.getElementById('replacements').value, savedOptions.replacements);
 	changeCellBackgroundColor('testLinksCell', document.getElementById('testLinks').value, savedOptions.testLinks);
+
+	/** Function to process the error message in the replaced link cell
+	 * @function
+	 * @returns {void}
+	 */
+	const processPatternsToReplaceCellErrorMessage = () => {
+		if (patternsToReplaceErrorLines.size > 0) {
+			const patternsToReplaceCellErrorLocationNewString = JSON.stringify(Array.from(patternsToReplaceErrorLines).sort());
+			if (document.getElementById('patternsToReplaceCellErrorLocation').textContent !== patternsToReplaceCellErrorLocationNewString) {
+				document.getElementById('patternsToReplaceCellError').style.display = "";
+				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "";
+				document.getElementById('patternsToReplaceCellErrorLocation').textContent = patternsToReplaceCellErrorLocationNewString;
+			}
+		} else {
+			const patternsToReplaceCellErrorLocationContent = document.getElementById('patternsToReplaceCellErrorLocation').textContent;
+			if (patternsToReplaceCellErrorLocationContent !== "") {
+				document.getElementById('patternsToReplaceCellError').style.display = "none";
+				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "none";
+				document.getElementById('patternsToReplaceCellErrorLocation').textContent = "";
+			}
+		}
+	}
+	processPatternsToReplaceCellErrorMessage();
+
+	/** Function to process the line numbers for a specific class.
+	 * @function
+	 * @param {string} className - The name class name to change its class numbers.
+	 * @param {number} numberOfLines - The number of lines in the list.
+	 * @param {number} numberOfLinesFloor - The default number of lines in the list.
+	 * @returns {void}
+	 */
+	const processClassLineNumbers = (className, numberOfLines, numberOfLinesFloor) => {
+		// const numbersArray = Array.from({length: numberOfLines}, (_, i) => i + 1);
+		const elementsArray = Array.from(document.getElementsByClassName(className));
+		if (numberOfLines > numberOfLinesFloor) {
+			const numbersArray = Array.from({length: numberOfLines}, (_, i) => i + 1);
+			const elementsNumbersString = createNewList(numbersArray);
+			elementsArray.forEach((element) => {
+				if (elementsNumbersString !== element.value) {
+					element.value = elementsNumbersString;
+				}
+			});
+		}
+
+		const elementsWidthSize = maxWidthSize([String(numberOfLines)]);
+		elementsArray.forEach((element) => {
+			adjustWidth(element, elementsWidthSize);
+			adjustHeight(element, numberOfLines);
+		});
+
+	}
+	processClassLineNumbers('hostNamesLineNumbers', hostNames.length, 3);
+	processClassLineNumbers('patternsToReplaceLineNumbers', patterns.length, 3);
+	processClassLineNumbers('replacementsLineNumbers', replacements.length, 3);
+	processClassLineNumbers('linkSamplesLineNumbers', testLinks.length, 6);
+
 }
 
 document.getElementById('hostNames').addEventListener('input', changeReplacedLinks);
@@ -1008,7 +1098,7 @@ function defaultOptions() {
  * @returns {void}
  */
 function restoreOptions() {
-    const keys = [
+	const keys = [
 		"textCheck",
 		"textHueSlide",
 		"textSaturationSlide",
@@ -1033,12 +1123,14 @@ function restoreOptions() {
 		"patternsToReplace", 
 		"replacements",
 		"testLinks"];
-	browser.storage.local.get(keys).then(result => {getSavedOptions(result, 'storage'); changePageOptionsFromStorage(result);});
+	browser.storage.local.get(keys).then((result) => {getSavedOptions(result, 'storage'); changePageOptionsFromStorage(result);});
 		
 }
 
 /** Adds a listener to the document when the content is loaded. */
-document.addEventListener('DOMContentLoaded', restoreOptions);
+document.addEventListener('DOMContentLoaded', () => {registerOptionsPageWindow(); restoreOptions();});
+/** Adds a listener to the window when the content is unloaded. */
+window.addEventListener('beforeunload', unRegisterOptionsPageWindow);
 /** Adds a listener to the save button when it's clicked. */
 document.getElementById('saveOptions').addEventListener('click', saveOptions);
 

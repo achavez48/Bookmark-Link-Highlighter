@@ -4,21 +4,23 @@
 	"version": "2.0",
 	"description": "Highlights links on a page that exist in your bookmarks.",
 	"icons": {
-		"16": "images/icon-180.svg", 
-		"19": "images/icon-180.svg", 
-		"32": "images/icon-180.svg", 
-		"38": "images/icon-180.svg", 
-		"48": "images/icon-180.svg", 
-		"64": "images/icon-180.svg", 
-		"128": "images/icon-180.svg",
-		"180": "images/icon-180.svg"
+		"16": "icons/icon-180.svg", 
+		"19": "icons/icon-180.svg", 
+		"32": "icons/icon-180.svg", 
+		"38": "icons/icon-180.svg", 
+		"48": "icons/icon-180.svg", 
+		"64": "icons/icon-180.svg", 
+		"128": "icons/icon-180.svg",
+		"180": "icons/icon-180.svg"
 	},
 	"permissions": [
-		"bookmarks", 
-		"scripting", 
-		"activeTab", 
+		"activeTab",
+		"bookmarks",
+		"contextMenus",
+		"downloads",
+		"scripting",
 		"storage",
-		"downloads"
+		"tabs"
 	],
 	"browser_specific_settings": {
 		"gecko": {
@@ -33,8 +35,11 @@
 		"persistent": true
 	},
 	"options_ui": {
-		"page": "options.html",
+		"page": "html/options.html",
 		"open_in_tab": true
+	},
+	"browser_action": {
+		"default_popup": "html/popup.html"
 	},
 	"content_scripts": [
 		{

@@ -179,7 +179,7 @@ class optionsCacheType{
 	}
 }
 
-/** Variable storing the options.
+/** Constant storing the options.
  * @constant
  * @type {optionsCacheType}
  */
@@ -191,12 +191,17 @@ const optionsCache = new optionsCacheType();
  * @returns {PatternReplacementType | null} Replacements in regex and their replacements.
  */
 function compileRules(replacementRules) {
-	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]*)$/);
+	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]+)$/);
 	const newPattern = patternStringToRegex[1];
 	const newFlag = patternStringToRegex[2];
 
 	if (patternStringToRegex) {
-		return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRules.replacements);
+		try {
+			return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRules.replacements);
+		} catch (error) {
+			// Ignore error.
+			return null;
+		}
 	}
 	return null;
 }
@@ -284,7 +289,7 @@ function writeToOptionsCache(result) {
 		const hostNames = trimmingList(keyValidate(result, 'hostNames', null));
 		const patternsToReplace = trimmingList(keyValidate(result, 'patternsToReplace', null));
 		const replacements = trimmingList(keyValidate(result, 'replacements', null));
-		let dictionary = new Map();
+		const dictionary = new Map();
 
 		if (hostNames && patternsToReplace && replacements) {
 			for (let i = 0; i < hostNames.length; i++) {
@@ -303,7 +308,7 @@ function writeToOptionsCache(result) {
  * @returns {void}
  */
 function getOptionsFromStorage() {
-	browser.storage.local.get([
+	const keys = [
 		"textCheck",
 		"textHueSlide",
 		"textSaturationSlide",
@@ -326,7 +331,8 @@ function getOptionsFromStorage() {
 
 		"hostNames", 
 		"patternsToReplace", 
-		"replacements"]).then(writeToOptionsCache);
+		"replacements"];
+	browser.storage.local.get(keys).then(writeToOptionsCache);
 	
 }
 
@@ -394,11 +400,10 @@ async function updateOptions() {
  */
 async function exportOptions() {
 
-	const keys = await browser.storage.local.getKeys();
 	const optionsFromStorage = {};
-	await browser.storage.local.get(keys).then(value => {
-		for (const key of keys) {
-			optionsFromStorage[key] = value[key];
+	await browser.storage.local.get().then(storage => {
+		for (const key in storage) {
+			optionsFromStorage[key] = storage[key];
 		}
 	});
 
@@ -443,6 +448,56 @@ async function exportOptions() {
 
 }
 
+
+/** Constant to store the information on the windows and tabs that have the options page open.
+ * @constant
+ * @type {Map<number, number>} - `Key = windowID; value = tabID`.
+ */
+const windowsWithOptionsOpened = new Map();
+
+/** Function to register the windowID that have the options page open with its tabID.
+ * @function
+ * @param {{windowID: number, tabID: number}} windowOpened - The information on the options page.
+ * @returns {void}
+ */
+function registerWindowsWithOptionsPageOpened(windowOpened) {
+	if (!windowsWithOptionsOpened.has(windowOpened.windowID)) {
+		windowsWithOptionsOpened.set(windowOpened.windowID, windowOpened.tabID);
+	}
+}
+
+/** Function to unregister the windowID that had the options page closed.
+ * @function
+ * @param {number} windowClosed - The windowID of the options page closed.
+ * @returns {void}
+ */
+function unRegisterWindowsWithOptionsPageOpened(windowClosed) {
+	windowsWithOptionsOpened.delete(windowClosed);
+}
+
+/** Function to retrieve the map with the information on the windows and tabs that have the options page open.
+ * @function
+ * @returns {{openedWindows: Map<number, number>}}
+ */
+function retrieveWindowsWithOptionsPageOpened() {
+	return { openedWindows: windowsWithOptionsOpened };
+}
+
+/** Constant to map all page options message actions to their functions.
+ * @type {Map<string, (msg: 
+ * {windowOpened: {windowID: number, tabID: number}} & 
+ * {windowClosed: number}
+ * ) => void | Promise<{openedWindows: Map<number, number>}>
+ * >}
+ */
+const optionsPageRelatedActions = new Map([
+	["updateOptions", (msg) => {updateOptions();}],
+	["exportOptions", (msg) => {exportOptions();}],
+	["registerWindowsWithOptionsPageOpened", (msg) => {registerWindowsWithOptionsPageOpened(msg.windowOpened);}],
+	["unRegisterWindowsWithOptionsPageOpened", (msg) => {unRegisterWindowsWithOptionsPageOpened(msg.windowClosed);}],
+	["retrieveWindowsWithOptionsPageOpened", async (msg) => {return retrieveWindowsWithOptionsPageOpened();}]
+]);
+
 /** Function to add bookmark into the bookmarks cache.
  * @function
  * @param {string} bookmarkID 
@@ -479,13 +534,26 @@ function changeBookmarkEvent(bookmarkID, bookmarkInfo) {
 	}
 }
 
-/** Adds a listener to the `updateOptions` and `exportOptions` actions when pressing the save or export button in the options page. */
+/** Adds a listener to the `updateOptions`, `exportOptions` actions when pressing the save or export button; `registerWindowsWithOptionsPageOpened` and `unRegisterWindowsWithOptionsPageOpened` actions
+ * when loading and unloading the options page; `retrieveWindowsWithOptionsPageOpened` when pressing the options button in the popup. */
 browser.runtime.onMessage.addListener((msg) => {
-	if (msg.action === "updateOptions") {
-		updateOptions();
-	}
-	if (msg.action === "exportOptions") {
-		exportOptions();
+	// if (msg.action === "updateOptions") {
+	// 	updateOptions();
+	// }
+	// if (msg.action === "exportOptions") {
+	// 	exportOptions();
+	// }
+	// if (msg.action === "registerWindowsWithOptionsPageOpened") {
+	// 	registerWindowsWithOptionsPageOpened(msg.windowOpened);
+	// }
+	// if (msg.action === "unRegisterWindowsWithOptionsPageOpened") {
+	// 	unRegisterWindowsWithOptionsPageOpened(msg.windowClosed);
+	// }
+	// if (msg.action === "retrieveWindowsWithOptionsPageOpened") {
+	// 	return retrieveWindowsWithOptionsPageOpened().then((openedWindows) => ({ openedWindows: openedWindows }));
+	// }
+	if (optionsPageRelatedActions.has(msg.action)) {
+		return optionsPageRelatedActions.get(msg.action)(msg);
 	}
 });
 

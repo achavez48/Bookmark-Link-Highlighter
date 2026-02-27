@@ -10,6 +10,10 @@
 			padding: 8px; /* Add some padding inside cells */
 			text-align: center;
 		}
+		.button-type {
+			border: 1px solid black;
+			background-color: hsl(0, 0%, 90%);
+		}
 		.individual-cells {
 			border: 1px solid gray;
 			min-height: 0px;
@@ -55,6 +59,14 @@
 			font-family: 'Courier New', Courier, monospace;
 			font-size: 10pt; /* Base font size: 12pt */
 		}
+		.errorMessage {
+			color: red;
+			background-color: white;
+		}
+		.dynamic-textArea-cell {
+			padding: unset;
+			border: unset;
+		}
 	</style>
 
 	<head>
@@ -67,7 +79,7 @@
 				<tbody>
 					<tr>
 						<td style="border: none;">
-							<img id="iconImage" src="images/icon-options.svg" alt="BLH" width="100px">
+							<img id="iconImage" src="../icons/icon-options.svg" alt="BLH" width="100px">
 						</td>
 						<td style="border: none;">
 							<h2>Bookmark Link Highlighter Options</h2>
@@ -79,17 +91,17 @@
 								<tbody>
 									<tr>
 										<td style="border: none; width: fit-content;">
-											<button id="saveOptions">Save Options</button>
+											<button id="saveOptions" class="button-type">Save Options</button>
 										</td>
 										<td style="border: none; width: fit-content;">
-											<button id="exportOptions">Export</button>
+											<button id="exportOptions" class="button-type">Export</button>
 										</td>
 										<td style="border: none; width: fit-content;">
-											<input id="fileInput" type="file" accept=".json">
-											<button id="importOptions">Import</button>
+											<input id="fileInput" class="button-type" type="file" accept=".json">
+											<button id="importOptions" class="button-type">Import</button>
 										</td>
 										<td style="border: none; width: fit-content; padding-left: 100px;">
-											<button id="defaultOptions">Default</button>
+											<button id="defaultOptions" class="button-type">Default</button>
 										</td>
 									</tr>
 								</tbody>
@@ -320,15 +332,66 @@
 				<thead>
 					<tr>
 						<th id="hostNamesCell"><label>Host Names*</label></th>
-						<th id="patternsToReplaceCell"><label>Patterns to Replace (Regex)</label></th>
+						<th id="patternsToReplaceCell"><label>Patterns to Replace (Regex)
+							<span id="patternsToReplaceCellError" class="errorMessage" style="display: none;"> ERROR </span>
+							<span id="patternsToReplaceCellErrorLocation" class="errorMessage" style="display: none;"></span>
+						</label></th>
 						<th id="replacementsCell"><label>Replacements</label></th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<th><textarea id="hostNames" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(144px * 10 / 12 + 60px); min-height: calc(32px * 10 / 12 + 20px);" placeholder="twitter.com&#13;www.youtube.com"></textarea></th>
-						<th><textarea id="patternsToReplace" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(326.4px * 10 / 12); min-height: calc(32px * 10 / 12 + 20px);" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea></th>
-						<th><textarea id="replacements" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(48px * 10 / 12 + 120px); min-height: calc(32px * 10 / 12 + 20px);" placeholder="x.com&#13;$1$2"></textarea></th>
+						<td>
+
+							<table>
+								<tbody>
+									<tr>
+										<td class="dynamic-textArea-cell">
+											<textarea class="dynamic-textArea text-font-mono hostNamesLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 3); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3" disabled></textarea>
+										</td>
+										<td class="dynamic-textArea-cell">
+											<textarea id="hostNames" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 15 * 1.5); min-height: calc(18px * (10 / 12) * 3);" placeholder="twitter.com&#13;www.youtube.com"></textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+						</td>
+
+						<td>
+
+							<table>
+								<tbody>
+									<tr>
+										<td class="dynamic-textArea-cell">
+											<textarea class="dynamic-textArea text-font-mono patternsToReplaceLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 3); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3" disabled></textarea>
+										</td>
+										<td class="dynamic-textArea-cell">
+											<textarea id="patternsToReplace" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 34); min-height: calc(18px * (10 / 12) * 3);" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+						</td>
+
+						<td>
+
+							<table>
+								<tbody>
+									<tr>
+										<td class="dynamic-textArea-cell">
+											<textarea class="dynamic-textArea text-font-mono replacementsLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 3); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3" disabled></textarea>
+										</td>
+										<td class="dynamic-textArea-cell">
+											<textarea id="replacements" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 5 * 4); min-height: calc(18px * (10 / 12) * 3);" placeholder="x.com&#13;$1$2"></textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+						</td>
+
 					</tr>
 				</tbody>
 			</table>
@@ -346,8 +409,40 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td><textarea id="testLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(585.6px * 10 / 12); min-height: calc(32px * 10 / 12 + 60px);" placeholder="https://www.youtube.com/watch?v=video_id&list=list_id&index=2&#13;https://twitter.com/some_user"></textarea></td>
-						<td><textarea id="replacedLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc(384px * 10 / 12); min-height: calc(32px * 10 / 12 + 60px);" placeholder="https://www.youtube.com/watch?v=video_id&#13;https://x.com/some_user" readonly></textarea></td>
+						 <td>
+
+							<table>
+								<tbody>
+									<tr>
+										<td class="dynamic-textArea-cell">
+											<textarea class="dynamic-textArea text-font-mono linkSamplesLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 6); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3&#13;4&#13;5&#13;6" disabled></textarea>
+										</td>
+										<td class="dynamic-textArea-cell">
+											<textarea id="testLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 61); min-height: calc(18px * (10 / 12) * 6);" placeholder="https://www.youtube.com/watch?v=video_id&list=list_id&index=2&#13;https://twitter.com/some_user"></textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</td>
+						 
+						<td>
+
+							<table>
+								<tbody>
+									<tr>
+										<td class="dynamic-textArea-cell">
+											<textarea class="dynamic-textArea text-font-mono linkSamplesLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 6); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3&#13;4&#13;5&#13;6" disabled></textarea>
+										</td>
+										<td class="dynamic-textArea-cell">
+											<textarea id="replacedLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 40); min-height: calc(18px * (10 / 12) * 6);" placeholder="https://www.youtube.com/watch?v=video_id&#13;https://x.com/some_user" readonly></textarea>				
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+						</td>
+
 					</tr>
 				</tbody>
 			</table>
@@ -361,13 +456,13 @@
 				Ex:
 			</p>
 
-			<pre class="text-font-mono" style="margin:unset;">	Host Name = www.youtube.com<br>	Patterns to Replace = //gi<br>	Replacement = (empty)</pre>
+			<pre class="text-font-mono" style="margin: unset;">	Host Name = www.youtube.com<br>	Patterns to Replace = //gi<br>	Replacement = (empty)</pre>
 			
 			<p>
 				If the current host name also has rules then this step is not necessary.
 			</p>
 		</section>
 		
-		<script type="text/javascript" src="js/options.js"></script>
+		<script type="text/javascript" src="../js/options.js"></script>
 	</body>
 </html>

@@ -167,60 +167,66 @@ class OriginalTextSizeType {
 	}
 }
 
-/**	Function to get the original text size number, unit and the entire CSS rule.
+/**	Function to get the original text size number, unit.
  * @function
  * @param {string} rule - CSS rule.
  * @returns {OriginalTextSizeType | null} Returns the original text size with it's unit and rule if any.
  */
 function getOriginalTextSize(rule) {
 	
-	let temp = rule;
-	temp = temp.split("font-size:")[1];
-	temp = temp.split(";")[0];
-	temp = temp.trim();
+	// let temp = rule;
+	// temp = temp.split("font-size:")[1];
+	// temp = temp.split(";")[0];
+	// temp = temp.trim();
+
+	const fontSizeString = rule.replace(/^(?:.*)(?:font-size: ?)(\d+\.\d+|\d+)?(.[^;! ]+)(?:;| ?!important;)(?:.*)?$/gis, "$1 $2");
 	
-	/** Function to return current search.
+	/** Function to return current size and unit if any.
 	 * @function
-	 * @param {string} value - The size value as a string.
+	 * @param {string} magnitude - The size magnitude as a string.
 	 * @param {string} units - The size unit as a string.
 	 * @returns {OriginalTextSizeType | null} The size value as a number and its unit.
 	 */
-	const filter = (value, units) => {
-		const size = Number(value);
+	const filter = (magnitude, units) => {
+		const size = Number(magnitude); // String magnitude "" is converted to 0 resulting in {size: 0, unit: xxx-large} instead of null.
 		if (Number.isNaN(size)) {
 			return null;
 		}
 		return new OriginalTextSizeType(size, units);
 	}
 
-	let units = String();
-	if (temp.search("rem") != -1) {
-		units = "rem";
-		temp = temp.split("rem")[0];
-		return filter(temp, units);
-	}
-	if (temp.search("em") != -1) {
-		units = "em";
-		temp = temp.split("em")[0];
-		return filter(temp, units);
-	}
-	if (temp.search("px") != -1) {
-		units = "px";
-		temp = temp.split("px")[0];
-		return filter(temp, units);
-	}
-	if (temp.search("%") != -1) {
-		units = "%";
-		temp = temp.split("%")[0];
-		return filter(temp, units);
-	}
-	if (temp.search("vw") != -1) {
-		units = "vw";
-		temp = temp.split("vw")[0];
-		return filter(temp, units);
-	}
+	// let units = String();
+	// if (temp.search("rem") != -1) {
+	// 	units = "rem";
+	// 	temp = temp.split("rem")[0];
+	// 	return filter(temp, units);
+	// }
+	// if (temp.search("em") != -1) {
+	// 	units = "em";
+	// 	temp = temp.split("em")[0];
+	// 	return filter(temp, units);
+	// }
+	// if (temp.search("px") != -1) {
+	// 	units = "px";
+	// 	temp = temp.split("px")[0];
+	// 	return filter(temp, units);
+	// }
+	// if (temp.search("%") != -1) {
+	// 	units = "%";
+	// 	temp = temp.split("%")[0];
+	// 	return filter(temp, units);
+	// }
+	// if (temp.search("vw") != -1) {
+	// 	units = "vw";
+	// 	temp = temp.split("vw")[0];
+	// 	return filter(temp, units);
+	// }
 
-	return null;
+	// return null;
+	const newString = fontSizeString.split(" ");
+	const textSize = filter(newString[0], newString[1]);
+
+	return textSize;
 }
 
 /** Function to get all the CSS rules in the page.
@@ -349,7 +355,7 @@ function replaceHrefInLink(link, replacementRules) {
 	const replaceInDomain = (replacementRules, rule) => {
 		const newLinkStringRelative = link.attributes.href.value;
 		let newLinkString = newLinkStringRelative;
-		// TODO: make it so it search at the start of the string (^)
+		
 		if (newLinkStringRelative.search(/(https:\/\/)|(http:\/\/)/gi) != -1) { // Evaluate internal/external links.
 			try {
 				const newHost = new URL(newLinkStringRelative).hostname; // For external links.
@@ -385,8 +391,9 @@ function replaceHrefInLink(link, replacementRules) {
  */
 const setPropertyFontSize = new Map([
 	["rem", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize * optionsTextSize / 100 + "rem", 'important');}], 
-	["em", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize / 100 - 1 + "em", 'important');}], 
 	["px", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize * optionsTextSize / 100 + "px", 'important');}], 
+	["pt", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize * optionsTextSize / 100 + "pt", 'important');}], 
+	["em", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize / 100 - 1 + "em", 'important');}], 
 	["%", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize - 100 + "%", 'important');}], 
 	["vw", (element, optionsTextSize, originalTextSize) => {element.style.setProperty('font-size', originalTextSize + optionsTextSize - 100 + "vw", 'important');}], 
 	["else", (element, optionsTextSize, ..._) => {element.style.setProperty('font-size', optionsTextSize / 100 + "em", 'important');}]
@@ -396,7 +403,7 @@ const setPropertyFontSize = new Map([
  * @function
  * @param {LinkType} element - The link element with the `href` property.
  * @param {OptionsType} options - The options imported from the background.
- * @param {OriginalTextSizeType} originalTextSize - The link's original text size.
+ * @param {OriginalTextSizeType | null} originalTextSize - The link's original text size.
  * @returns {void}
  */
 function changeTextStyle(element, options, originalTextSize) {
@@ -573,7 +580,8 @@ function highlightAllLinks(response) {
 
 	// Initial highlight for all existing links.
 	document.querySelectorAll('a[href], [data-href]').forEach(node => {
-		const style = structuredClone(node.getAttribute("style"));
+		// const style = structuredClone(node.getAttribute("style"));
+		const style = node.getAttribute("style");
 		originalStyles.set(node, {style: style, processed: false});
 		highlightLink(node, false);
 	});
@@ -597,7 +605,8 @@ function highlightAllLinks(response) {
 			pendingAttributes.forEach(mutation => {
 				const node = mutation.target;
 				if (!originalStyles.has(node)) {
-					const style = structuredClone(node.getAttribute("style"));
+					// const style = structuredClone(node.getAttribute("style"));
+					const style = node.getAttribute("style");
 					originalStyles.set(node, {style: style, processed: false});
 				} else {
 					const oldValue = mutation.oldValue;
