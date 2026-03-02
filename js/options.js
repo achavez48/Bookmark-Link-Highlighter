@@ -125,16 +125,16 @@ class PatternReplacementType {
  */
 const fontSizeDefault = {sampleText1: "", sampleText2: "2em"};
 
-/** Constant to save the options in the storage and compare them to current values.
- * @constant
- */
-const savedOptions = new OptionsStorageType();
-
 /** Constant to store the windowID and the tabID of the current options page.
  * @constant
  * @type {{windowID: number, tabID: number}}
  */
 const currentOptionsPageInfo = {windowID: null, tabID: null};
+
+/** Constant to save the options in the storage and compare them to current values.
+ * @constant
+ */
+const savedOptions = new OptionsStorageType();
 
 /** Function to collect the current windowID and tabID of the options page and send it to the background.
  * @async
@@ -491,59 +491,6 @@ document.getElementById('backgroundSaturationSlide').addEventListener('input', c
 document.getElementById('backgroundLightnessSlide').addEventListener('input', changeBackgroundColor);
 
 
-/** Function to compile regex rules and store them in `compiledRules`.
- * @function
- * @param {{patternsToReplace: string, replacements: string}} replacementRules - Replacement patterns and replacements.
- * @param {Set<number>} patternsToReplaceErrorLines
- * @param {number} line
- * @returns {PatternReplacementType | null} Replacements in regex and their replacements.
- */
-function compileRules(replacementRules, patternsToReplaceErrorLines, line) {
-	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]+)$/);
-
-	if (patternStringToRegex) {
-		const newPattern = patternStringToRegex[1];
-		const newFlag = patternStringToRegex[2];
-		try {
-			return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRules.replacements);
-		} catch (error) {
-			// Ignore error.
-			patternsToReplaceErrorLines.add(line + 1);
-			return null;
-		}
-	}
-	return null;
-}
-
-/** Function that replaces in the string the pattern and replaces it with another pattern.
- * @function
- * @param {string} string - The original string to be changed.
- * @param {PatternReplacementType | null} rule - The host regex patterns to replace and the replacements.
- * @returns {string} The string with the pattern replacements.
- * @example
- * // Example 1:
- * const newString1 = replaceStringPattern("https://www.youtube.com/watch?v=video_ID&list=list_ID&index=2", "/(\/watch\?v=)(.*)&list=(.*)$/gi", "$1$2");
- * console.log(newString1); // Expected output: https://www.youtube.com/watch?v=video_ID
- *  // Example 2:
- * const newString2 = replaceStringPattern("https://twitter.com/some_user", "/twitter.com/gi", "x.com");
- * console.log(newString2); // Expected output: https://x.com/some_user
- *  // Example 3:
- * const newString3 = replaceStringPattern("/posts?tags=some_tag", "/(\/en\/posts\?tags=)|(\/posts\?tags=)/gi", "/en/?tags=");
- * console.log(newString3); // Expected output: /en/?tags=some_tag
- */
-function replaceStringPattern(string, rule) {
-	let newString = string;
-	if (rule == null){
-		return newString;
-	}
-	try {
-		newString = newString.replace(rule.patternsToReplace, rule.replacements);
-	} catch (error) {
-		// Ignore error.
-	}
-	return newString;
-}
-
 /** Constant for the scale of the characters for the font: 'Courier New', Courier, monospace
  * @constant
  */
@@ -593,19 +540,108 @@ function adjustHeight(element, numOfRows){
 	if (currentSizeString !== element.style.height) element.style.height = currentSizeString;
 }
 
-/** Function to change the Test Links and also the sizes of the text areas of the Host Names, Patterns to Replace, Replacements and Replaced Links.
+/** Function that replaces in the string the pattern and replaces it with another pattern.
  * @function
+ * @param {string} string - The original string to be changed.
+ * @param {PatternReplacementType | null} rule - The host regex patterns to replace and the replacements.
+ * @returns {string} The string with the pattern replacements.
+ * @example
+ * // Example 1:
+ * const newString1 = replaceStringPattern("https://www.youtube.com/watch?v=video_ID&list=list_ID&index=2", "/(\/watch\?v=)(.*)&list=(.*)$/gi", "$1$2");
+ * console.log(newString1); // Expected output: https://www.youtube.com/watch?v=video_ID
+ *  // Example 2:
+ * const newString2 = replaceStringPattern("https://twitter.com/some_user", "/twitter.com/gi", "x.com");
+ * console.log(newString2); // Expected output: https://x.com/some_user
+ *  // Example 3:
+ * const newString3 = replaceStringPattern("/posts?tags=some_tag", "/(\/en\/posts\?tags=)|(\/posts\?tags=)/gi", "/en/?tags=");
+ * console.log(newString3); // Expected output: /en/?tags=some_tag
+ */
+function replaceStringPattern(string, rule) {
+	let newString = string;
+	if (rule == null){
+		return newString;
+	}
+	try {
+		newString = newString.replace(rule.patternsToReplace, rule.replacements);
+	} catch (error) {
+		// Ignore error.
+	}
+	return newString;
+}
+
+/** Function to compile regex rules and store them in `compiledRules`.
+ * @function
+ * @param {RegExp} compiledRule - Pattern to be replaced.
+ * @param {string} replacement - Replacement for the pattern.
+ * @returns {PatternReplacementType} Replacement in regex and its replacement.
+ */
+function compileRules2(compiledRule, replacement) {
+	return new PatternReplacementType(compiledRule, replacement);
+}
+
+// /** Function to compile regex rules and store them in `compiledRules`.
+//  * @function
+//  * @param {{patternToReplace: string, replacement: string}} replacementRule - Replacement pattern and replacement.
+//  * @param {Set<number>} patternsToReplaceErrorLines
+//  * @param {number} line
+//  * @returns {PatternReplacementType | null} Replacement in regex and their replacement.
+//  */
+// function compileRules(replacementRule, patternsToReplaceErrorLines, line) {
+// 	const patternStringToRegex = replacementRule.patternToReplace.match(/^\/(.+)?\/([a-z]+)$/);
+
+// 	if (patternStringToRegex) {
+// 		const newPattern = patternStringToRegex[1];
+// 		const newFlag = patternStringToRegex[2];
+// 		try {
+// 			return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRule.replacement);
+// 		} catch (error) {
+// 			// Ignore error.
+// 			patternsToReplaceErrorLines.add(line + 1);
+// 			return null;
+// 		}
+// 	}
+// 	return null;
+// }
+
+/** List of host names.
+ * @type {Array<string>}
+ */
+const hostNamesTest = [];
+/** List of patterns to replace.
+ * @type {Array<string>}
+ */
+const patternsToReplaceTest = [];
+/** List of replacements.
+ * @type {Array<string>}
+ */
+const replacementsTest = [];
+/** List of compiled rules in regex.
+ * @type {Array<RegExp>}
+ */
+const compiledRulesTest = [];
+/** Map considering the smallest list (hostName, patternsToReplace, replacements) of hostNames and its replacement rules.
+ * @type {Map<string, PatternReplacementType>}
+ */
+const replacementRulesTest = new Map();
+/** Set of lines in `patternsToReplaceTest` containing errors in their regex.
+ * @type {Set<number>}
+ */
+const patternsToReplaceErrorLinesTest = new Set();
+/** List of test links.
+ * @type {Array<string>}
+ */
+const testLinksTest = [];
+/** List of replaced links.
+ * @type {Array<string>}
+ */
+const replacedLinksTest = [];
+
+/** Function to update the replacement rules
+ * @function
+ * @param {string} elementID - The id of the element to be updated.
  * @returns {void}
  */
-function changeReplacedLinks() {
-	
-	/** Function to validate the key string in the rule dictionary.
-	 * @function
-	 * @param {Map<string, PatternReplacementType>} dictionary - Rule dictionary.
-	 * @param {string} key - Key for the rule dictionary.
-	 * @returns {boolean} If key exists in the rule dictionary.
-	 */
-	const keyValidate = (dictionary, key) => {if (dictionary.has(key)) return true; else return false;}
+function updateReplacementList(elementID) {
 
 	/** Function to make list into an array and trim each element.
 	 * @function
@@ -621,39 +657,52 @@ function changeReplacedLinks() {
 		return newList;
 	}
 
-	const hostNames = trimmingList('hostNames');
-	const patternsToReplace = trimmingList('patternsToReplace');
-	const replacements = trimmingList('replacements');
-	/** The map for each hostName and its replacement rules.
-	 * @type {Map<string, PatternReplacementType | null>}
+	/** Function to delete elements of an array without losing its reference.
+	 * @function
+	 * @param {Array<string>} array - The array to delete its elements.
+	 * @returns {void}
 	 */
-	const replacementRules = new Map();
-	const testLinks = trimmingList('testLinks');
-	const replacedLinks = new Array(testLinks.length);
-	const patternsToReplaceErrorLines = new Set();
+	const deleteArrayElements = (array) => {
+		array.length = 0;
+	}
 
-	const createReplacementRules = () => {
-		for (let i = 0; i < hostNames.length; i++) {
-			if (hostNames[i] !== "" && patternsToReplace.length > i && replacements.length > i) {
-				replacementRules.set(hostNames[i], compileRules({patternsToReplace: patternsToReplace[i], replacements: replacements[i]}, patternsToReplaceErrorLines, i));
+	/** Function to add the new array elements into the old array.
+	 * @function
+	 * @param {Array<string>} array - The old array to add elements into.
+	 * @param {Array<string>} newArray - The new array from which the new elements will be added.
+	 * @returns {void}
+	 */
+	const addArrayElements = (array, newArray) => {
+		newArray.forEach(element => array.push(element));
+	}
+
+	/** Function to update the replacement rules the the map `replacementRules` considering the shortest list between `hostNames`, `patternsToReplace`, `replacements`.
+	 * @function
+	 * @returns {void}
+	 */
+	const updateReplacementRules = () => {
+		replacementRulesTest.clear();
+		const minimumLength = Math.min(...[hostNamesTest.length, patternsToReplaceTest.length, replacementsTest.length]);
+		for (let i = 0; i < minimumLength; i++) {
+			if (hostNamesTest[i] !== "") {
+				replacementRulesTest.set(hostNamesTest[i], compileRules2(compiledRulesTest[i], replacementsTest[i]));
 			}
 		}
 	}
-	createReplacementRules();
 
-	/** Function to replace the string in the link element with the `href` property considering internal/external links and their replacement rules.
+	/** Function to replace the string considering the replacement rules.
 	 * @function
-	 * @param {string} linkString
+	 * @param {string} linkString - The string of the link.
 	 * @param {Map<string, PatternReplacementType>} replacementRules - Dictionary of host names and their replacement rules.
-	 * @returns {string} New string for the link element for its `href` property.
+	 * @returns {string} New string for the link element.
 	 */
 	const replaceInDomain = (linkString, replacementRules) => {
 		let newLinkString = linkString;
-		
+
 		try {
 			const hostName = new URL(newLinkString).hostname;
 
-			if (keyValidate(replacementRules, hostName)) {
+			if (replacementRules.has(hostName)) {
 				newLinkString = replaceStringPattern(newLinkString, replacementRules.get(hostName));
 			}
 		} catch {
@@ -663,28 +712,14 @@ function changeReplacedLinks() {
 		return newLinkString;
 	}
 
-	for (let i = 0; i < testLinks.length; i++) {
-		replacedLinks[i] = replaceInDomain(testLinks[i], replacementRules);
-	}
-
 	/** Function to make the array list of strings into a single string with values separated by new lines.
 	 * @function
 	 * @param {Array<string>} list - The array string list.
 	 * @returns {string} The single string list.
 	 */
 	const createNewList = (list) => {
-		// let newList = "";
-		// newList = newList.concat(list[0]);
-		// if (list.length > 0) {
-		// 	for (let i = 1; i < list.length; i++) {
-		// 		newList = newList.concat("\n" + list[i]);
-		// 	}
-		// }
-		// return newList
-
 		return list.join("\n");
 	}
-	document.getElementById('replacedLinks').value = createNewList(replacedLinks);
 
 	/** Function to calculate the maximum number of characters in a text line inside the text element.
 	 * @function
@@ -700,46 +735,6 @@ function changeReplacedLinks() {
 		}
 		return size;
 	};
-
-	adjustWidth(document.getElementById('hostNames'), maxWidthSize(hostNames));
-	adjustHeight(document.getElementById('hostNames'), hostNames.length);
-	adjustWidth(document.getElementById('patternsToReplace'), maxWidthSize(patternsToReplace));
-	adjustHeight(document.getElementById('patternsToReplace'), patternsToReplace.length);
-	adjustWidth(document.getElementById('replacements'), maxWidthSize(replacements));
-	adjustHeight(document.getElementById('replacements'), replacements.length);
-
-	adjustWidth(document.getElementById('testLinks'), maxWidthSize(testLinks));
-	adjustHeight(document.getElementById('testLinks'), testLinks.length);
-	adjustWidth(document.getElementById('replacedLinks'), maxWidthSize(replacedLinks));
-	adjustHeight(document.getElementById('replacedLinks'), replacedLinks.length);
-
-	changeCellBackgroundColor('hostNamesCell', document.getElementById('hostNames').value, savedOptions.hostNames);
-	changeCellBackgroundColor('patternsToReplaceCell', document.getElementById('patternsToReplace').value, savedOptions.patternsToReplace);
-	changeCellBackgroundColor('replacementsCell', document.getElementById('replacements').value, savedOptions.replacements);
-	changeCellBackgroundColor('testLinksCell', document.getElementById('testLinks').value, savedOptions.testLinks);
-
-	/** Function to process the error message in the replaced link cell
-	 * @function
-	 * @returns {void}
-	 */
-	const processPatternsToReplaceCellErrorMessage = () => {
-		if (patternsToReplaceErrorLines.size > 0) {
-			const patternsToReplaceCellErrorLocationNewString = JSON.stringify(Array.from(patternsToReplaceErrorLines).sort());
-			if (document.getElementById('patternsToReplaceCellErrorLocation').textContent !== patternsToReplaceCellErrorLocationNewString) {
-				document.getElementById('patternsToReplaceCellError').style.display = "";
-				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "";
-				document.getElementById('patternsToReplaceCellErrorLocation').textContent = patternsToReplaceCellErrorLocationNewString;
-			}
-		} else {
-			const patternsToReplaceCellErrorLocationContent = document.getElementById('patternsToReplaceCellErrorLocation').textContent;
-			if (patternsToReplaceCellErrorLocationContent !== "") {
-				document.getElementById('patternsToReplaceCellError').style.display = "none";
-				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "none";
-				document.getElementById('patternsToReplaceCellErrorLocation').textContent = "";
-			}
-		}
-	}
-	processPatternsToReplaceCellErrorMessage();
 
 	/** Function to process the line numbers for a specific class.
 	 * @function
@@ -767,18 +762,128 @@ function changeReplacedLinks() {
 		});
 
 	}
-	processClassLineNumbers('hostNamesLineNumbers', hostNames.length, 3);
-	processClassLineNumbers('patternsToReplaceLineNumbers', patternsToReplace.length, 3);
-	processClassLineNumbers('replacementsLineNumbers', replacements.length, 3);
-	processClassLineNumbers('linkSamplesLineNumbers', testLinks.length, 6);
 
+	/** Function to process the text area of a specific element.
+	 * @function
+	 * @param {Array<string>} elementArray - The array of the element which text area needs to be processed.
+	 * @param {string} elementName - The reference id of the element to be processed.
+	 * @param {string} elementCellName - The reference id of the element cell name to be processed (for changes).
+	 * @param {string} elementLineNumberName - The reference id of the element line number class to be processed.
+	 * @returns {void}
+	 */
+	const processTextArea = (elementArray, elementName, elementCellName, elementLineNumberName) => {
+		deleteArrayElements(elementArray);
+		addArrayElements(elementArray, trimmingList(elementName));
+		adjustWidth(document.getElementById(elementName), maxWidthSize(elementArray));
+		adjustHeight(document.getElementById(elementName), elementArray.length);
+		changeCellBackgroundColor(elementCellName, document.getElementById(elementName).value, savedOptions[elementName]);
+		processClassLineNumbers(elementLineNumberName, elementArray.length, 3);
+	}
+
+	/** Function to update the compiled rules.
+	 * @function
+	 * @returns {void}
+	 */
+	const updateCompiledRules = () => {
+		deleteArrayElements(compiledRulesTest);
+		patternsToReplaceErrorLinesTest.clear();
+		
+		for (let i = 0; i < patternsToReplaceTest.length; i++) {
+			const patternStringToRegex = patternsToReplaceTest[i].match(/^\/(.+)?\/([a-z]+)$/);
+			if (patternStringToRegex) {
+				try {
+					const newPattern = patternStringToRegex[1];
+					const newFlag = patternStringToRegex[2];
+					const regex = new RegExp(newPattern, newFlag);
+					compiledRulesTest.push(regex);
+				} catch {
+					patternsToReplaceErrorLinesTest.add(i + 1);
+					compiledRulesTest.push(null);
+				}
+			} else {
+				compiledRulesTest.push(null);
+			}
+		}
+	}
+
+	/** Function to process the error message in the replaced link cell
+	 * @function
+	 * @returns {void}
+	 */
+	const processPatternsToReplaceCellErrorMessage = () => {
+		if (patternsToReplaceErrorLinesTest.size > 0) {
+			const patternsToReplaceCellErrorLocationNewString = JSON.stringify(Array.from(patternsToReplaceErrorLinesTest).sort());
+			if (document.getElementById('patternsToReplaceCellErrorLocation').textContent !== patternsToReplaceCellErrorLocationNewString) {
+				document.getElementById('patternsToReplaceCellError').style.display = "";
+				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "";
+				document.getElementById('patternsToReplaceCellErrorLocation').textContent = patternsToReplaceCellErrorLocationNewString;
+			}
+		} else {
+			const patternsToReplaceCellErrorLocationContent = document.getElementById('patternsToReplaceCellErrorLocation').textContent;
+			if (patternsToReplaceCellErrorLocationContent !== "") {
+				document.getElementById('patternsToReplaceCellError').style.display = "none";
+				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "none";
+				document.getElementById('patternsToReplaceCellErrorLocation').textContent = "";
+			}
+		}
+	}
+
+	/** Function to process the replaced links.
+	 * @function
+	 * @param {boolean} ignoreUpdatingReplacements - If updating the replacement rules is necessary or not. (Not necessary for changes in the test links list)
+	 * @returns {void}
+	 */
+	const processReplacedLinks = (ignoreUpdatingReplacements = false) => {
+		deleteArrayElements(replacedLinksTest);
+		if (!ignoreUpdatingReplacements) {updateReplacementRules();}
+		const newLinks = [];
+		testLinksTest.forEach(link => newLinks.push(replaceInDomain(link, replacementRulesTest)));
+		addArrayElements(replacedLinksTest, newLinks);
+		document.getElementById('replacedLinks').value = createNewList(replacedLinksTest);
+		adjustWidth(document.getElementById('replacedLinks'), maxWidthSize(replacedLinksTest));
+		adjustHeight(document.getElementById('replacedLinks'), replacedLinksTest.length);
+	}
+
+	const updateMap = new Map([
+		["hostNames", () => {
+			processTextArea(hostNamesTest, 'hostNames', 'hostNamesCell', 'hostNamesLineNumbers');
+			processReplacedLinks();
+		}],
+		["patternsToReplace", () => {
+			processTextArea(patternsToReplaceTest, 'patternsToReplace', 'patternsToReplaceCell', 'patternsToReplaceLineNumbers');
+			updateCompiledRules();
+			processPatternsToReplaceCellErrorMessage();
+			processReplacedLinks();
+		}],
+		["replacements", () => {
+			processTextArea(replacementsTest, 'replacements', 'replacementsCell', 'replacementsLineNumbers');
+			processReplacedLinks();
+		}],
+		["testLinks", () => {
+			processTextArea(testLinksTest, 'testLinks', 'testLinksCell', 'testLinksLineNumbers');
+			processReplacedLinks(true);
+		}],
+		["all", () => {
+			processTextArea(hostNamesTest, 'hostNames', 'hostNamesCell', 'hostNamesLineNumbers');
+			processTextArea(patternsToReplaceTest, 'patternsToReplace', 'patternsToReplaceCell', 'patternsToReplaceLineNumbers');
+			updateCompiledRules();
+			processPatternsToReplaceCellErrorMessage();
+			processReplacedLinks();
+			processTextArea(replacementsTest, 'replacements', 'replacementsCell', 'replacementsLineNumbers');
+			processTextArea(testLinksTest, 'testLinks', 'testLinksCell', 'testLinksLineNumbers');
+			processReplacedLinks()
+
+		}]
+	]);
+
+	updateMap.get(elementID)();
+	
 }
-//TODO: Make global consts for the 4 and only call change function when individual changes occur.
-document.getElementById('hostNames').addEventListener('input', changeReplacedLinks);
-document.getElementById('patternsToReplace').addEventListener('input', changeReplacedLinks);
-document.getElementById('replacements').addEventListener('input', changeReplacedLinks);
-document.getElementById('testLinks').addEventListener('input', changeReplacedLinks);
 
+document.getElementById('hostNames').addEventListener('input', () => {updateReplacementList('hostNames');});
+document.getElementById('patternsToReplace').addEventListener('input', () => {updateReplacementList('patternsToReplace');});
+document.getElementById('replacements').addEventListener('input', () => {updateReplacementList('replacements');});
+document.getElementById('testLinks').addEventListener('input', () => {updateReplacementList('testLinks');});
 
 /** Function to update the options by sending a message to take action `updateOptions` to the background.
  * @function
@@ -1050,7 +1155,7 @@ function saveOptions() {
 	
 	getSavedOptions(null, source);
 	changeAll();
-	changeReplacedLinks();
+	updateReplacementList('all');
 
 	updateOptions();
 }
@@ -1090,7 +1195,7 @@ function changePageOptionsFromStorage(options) {
 	document.getElementById("replacements").value = gettingOptions.get('replacements').get(source)(options);
 	document.getElementById("testLinks").value = gettingOptions.get('testLinks').get(source)(options);
 
-	changeReplacedLinks();
+	updateReplacementList('all');
 }
 
 /** Function to import the options from a JSON file.
