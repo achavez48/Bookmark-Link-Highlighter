@@ -1,0 +1,119 @@
+/* --------------------------Options------------------------ */
+.greyed-background-color {
+    background-color: gray;
+}
+.individual-cells {
+    border: 1px solid gray;
+    padding: 8px;
+    text-align: center;
+}
+.composite-cells {
+    border: none;
+    padding: unset;
+}
+.vertical-slider {
+    height: 100px;
+    margin: unset;
+}
+.collapsed-table {
+    border-collapse: collapse;
+}
+.fixed-table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 70px;
+}
+.dynamic-textArea {
+    overflow: hidden;
+    resize: none;
+}
+.text-font-mono {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10pt; /* Base font size: 12pt */
+}
+.errorMessage {
+    color: red;
+    display: none;
+}
+.dynamic-textArea-cell {
+    border: none;
+    padding: unset;
+}
+
+.title-section {
+    position: sticky;
+    top: calc(-83.83px);
+}
+.individual-cells.title-border {
+    border: none;
+}
+.individual-cells.title-main-buttons {
+    height: calc(40px - 16px);
+    border: none;
+}
+.individual-cells.save-options {
+    width: calc(104px - 16px);
+}
+.individual-cells.export-options {
+    width: calc(64.95px - 16px);
+}
+.individual-cells.import-options {
+    width: calc(303.62px - 16px);
+}
+.individual-cells.default-options {
+    padding-left: 100px;
+    width: calc(160.62px - 100px - 8px);
+}
+.sample-text-1 {
+    user-select: none;
+}
+.sample-text-2 {
+    user-select: none;
+    font-size: 2em;
+}
+.hostNamesLineNumbers {
+    min-width: calc((192px / 20) * (10 / 12));
+    min-height: calc(18px * (10 / 12) * 3);
+    text-align: right;
+}
+.hostNames {
+    min-width: calc((192px / 20) * (10 / 12) * 22);
+    min-height: calc(18px * (10 / 12) * 3);
+}
+.patternsToReplaceLineNumbers {
+    min-width: calc((192px / 20) * (10 / 12));
+    min-height: calc(18px * (10 / 12) * 3);
+    text-align: right;
+}
+.patternsToReplace {
+    min-width: calc((192px / 20) * (10 / 12) * 34);
+    min-height: calc(18px * (10 / 12) * 3);
+}
+.replacementsLineNumbers {
+    min-width: calc((192px / 20) * (10 / 12));
+    min-height: calc(18px * (10 / 12) * 3);
+    text-align: right;
+}
+.replacements {
+    min-width: calc((192px / 20) * (10 / 12) * 5 * 4);
+    min-height: calc(18px * (10 / 12) * 3);
+}
+.testLinksLineNumbers {
+    min-width: calc((192px / 20) * (10 / 12));
+    min-height: calc(18px * (10 / 12) * 6);
+    text-align: right;
+}
+.testLinks {
+    min-width: calc((192px / 20) * (10 / 12) * 61);
+    min-height: calc(18px * (10 / 12) * 6);
+}
+.replacedLinks {
+    min-width: calc((192px / 20) * (10 / 12) * 40);
+    min-height: calc(18px * (10 / 12) * 6);
+}
+.instructions-paragraph {
+    margin-bottom: unset;
+}
+.instructions-example {
+    margin: unset;
+}

@@ -1,80 +1,44 @@
 <!doctype html>
 <html lang="en">
-	
-	<style>
-		.individual-cells {
-			border: 1px solid gray;
-			padding: 8px;
-			text-align: center;
-		}
-		.composite-cells {
-			border: none;
-			padding: unset;
-		}
-		.vertical-slider {
-			height: 100px;
-			margin: unset;
-		}
-		.collapsed-table {
-			/* border-collapse: collapse; */
-		}
-		.fixed-table {
-			border-collapse: collapse;
-			table-layout: fixed;
-			width: 70px;
-			height: 100px;
-		}
-		.dynamic-textArea {
-			overflow: hidden;
-			resize: none;
-		}
-		.text-font-mono {
-			font-family: 'Courier New', Courier, monospace;
-			font-size: 10pt; /* Base font size: 12pt */
-		}
-		.errorMessage {
-			background-color: white;
-			color: red;
-		}
-		.dynamic-textArea-cell {
-			border: unset;
-			padding: unset;
-		}
-	</style>
 
 	<head>
 		<title>Bookmark Link Highlighter Options Page</title>
-		<link rel="stylesheet" type="text/css" href="../css/buttonType.css">
+		<link rel="stylesheet" type="text/css" href="../css/styles-common.css">
+		<link rel="stylesheet" type="text/css" href="../css/styles-options.css">
 	</head>
 
-	<body style="background-color: white;">
-		<section id="optionsPageTitle" style="position: sticky; top:calc(-67.83px - 16px); background-color: white;">
-			<table id="pageTitle" style="background-color: white;">
+	<body class="default-background-color">
+
+		<section id="optionsPageTitle" class="default-background-color title-section">
+			
+			<table id="pageTitle" class="default-background-color">
+				
 				<tbody>
+
 					<tr>
-						<td class="individual-cells" style="border: none;">
+						<td class="individual-cells title-border">
 							<img id="iconImage" src="../icons/icon-options.svg" alt="BLH" width="100px">
 						</td>
-						<td class="individual-cells" style="border: none;">
+						<td class="individual-cells title-border">
 							<h2>Bookmark Link Highlighter Options</h2>
 						</td>
 					</tr>
 					<tr>
-						<td class="individual-cells" colspan="2" style="border: none; width: 630px; height: 39px;">
+						<td class="individual-cells title-border" colspan="2">
 							<table id="mainButtons" class="collapsed-table">
 								<tbody>
 									<tr>
-										<td class="individual-cells" style="border: none; width: fit-content;">
+										<td class="individual-cells title-main-buttons save-options">
 											<button id="saveOptions" class="button-type">Save Options</button>
 										</td>
-										<td class="individual-cells" style="border: none; width: fit-content;">
+										<td class="individual-cells title-main-buttons export-options">
 											<button id="exportOptions" class="button-type">Export</button>
 										</td>
-										<td class="individual-cells" style="border: none; width: fit-content;">
+										<td class="individual-cells title-main-buttons import-options">
 											<input id="fileInput" class="button-type" type="file" accept=".json">
 											<button id="importOptions" class="button-type">Import</button>
 										</td>
-										<td class="individual-cells" style="border: none; width: fit-content; padding-left: 100px;">
+										<td class="individual-cells title-main-buttons default-options">
 											<button id="defaultOptions" class="button-type">Default</button>
 										</td>
 									</tr>
@@ -86,6 +50,7 @@
 				</tbody>
 				
 			</table>
+
 		</section>
 		
 		<section id="sampleOptions">
@@ -237,7 +202,7 @@
 								<option value="solid">Solid</option>
 							</select> 
 						</td>
-						<td style="background-color: gray;"></td>
+						<td class="greyed-background-color"></td>
 					</tr>
 
 					<tr>
@@ -275,9 +240,9 @@
 								</tbody>
 							</table>
 						</td>
-						<td style="background-color: gray;"></td>
-						<td style="background-color: gray;"></td>
-						<td style="background-color: gray;"></td>
+						<td class="greyed-background-color"></td>
+						<td class="greyed-background-color"></td>
+						<td class="greyed-background-color"></td>
 					</tr>
 
 				</tbody>
@@ -291,9 +256,9 @@
 			<table class="collapsed-table">
 				<tbody>
 					<tr>
-						<td class="individual-cells" style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Sample:</label></td>
-						<td class="individual-cells"><p id="sampleText1" style="inline-size: fit-content; user-select: none;">Link Text 1</p></td>
-						<td class="individual-cells"><p id="sampleText2" style="inline-size: fit-content; user-select: none; font-size: 2em; ">Link Text 2</p></td>
+						<th class="individual-cells"><label>Sample:</label></th>
+						<td class="individual-cells"><p id="sampleText1" class="sample-text-1">Link Text 1</p></td>
+						<td class="individual-cells"><p id="sampleText2" class="sample-text-2">Link Text 2</p></td>
 					</tr>
 				</tbody>
 			</table>
@@ -306,10 +271,12 @@
 				<thead>
 					<tr>
 						<th id="hostNamesCell" class="individual-cells"><label>Host Names*</label></th>
-						<th id="patternsToReplaceCell" class="individual-cells"><label>Patterns to Replace (Regex)
-							<span id="patternsToReplaceCellError" class="errorMessage" style="display: none;"> ERROR </span>
-							<span id="patternsToReplaceCellErrorLocation" class="errorMessage" style="display: none;"></span>
-						</label></th>
+						<th id="patternsToReplaceCell" class="individual-cells">
+							<label>Patterns to Replace (Regex)
+								<span id="patternsToReplaceCellError" class="default-background-color errorMessage"> ERROR </span>
+								<span id="patternsToReplaceCellErrorLocation" class="default-background-color errorMessage"></span>
+							</label>
+						</th>
 						<th id="replacementsCell" class="individual-cells"><label>Replacements</label></th>
 					</tr>
 				</thead>
@@ -321,27 +288,10 @@
 								<tbody>
 									<tr>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea class="dynamic-textArea text-font-mono hostNamesLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 3); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3" disabled></textarea>
+											<textarea class="dynamic-textArea text-font-mono hostNamesLineNumbers" spellcheck="false" placeholder="1&#13;2&#13;3" disabled></textarea>
 										</td>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea id="hostNames" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 15 * 1.5); min-height: calc(18px * (10 / 12) * 3);" placeholder="twitter.com&#13;www.youtube.com"></textarea>
-										</td>
-									</tr>
-								</tbody>
-							</table>
-							
-						</td>
-
-						<td class="individual-cells">
-
-							<table class="collapsed-table">
-								<tbody>
-									<tr>
-										<td class="individual-cells dynamic-textArea-cell">
-											<textarea class="dynamic-textArea text-font-mono patternsToReplaceLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 3); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3" disabled></textarea>
-										</td>
-										<td class="individual-cells dynamic-textArea-cell">
-											<textarea id="patternsToReplace" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 34); min-height: calc(18px * (10 / 12) * 3);" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea>
+											<textarea id="hostNames" class="dynamic-textArea text-font-mono hostNames" spellcheck="false" placeholder="twitter.com&#13;www.youtube.com"></textarea>
 										</td>
 									</tr>
 								</tbody>
@@ -355,10 +305,27 @@
 								<tbody>
 									<tr>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea class="dynamic-textArea text-font-mono replacementsLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 3); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3" disabled></textarea>
+											<textarea class="dynamic-textArea text-font-mono patternsToReplaceLineNumbers" spellcheck="false" placeholder="1&#13;2&#13;3" disabled></textarea>
 										</td>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea id="replacements" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 5 * 4); min-height: calc(18px * (10 / 12) * 3);" placeholder="x.com&#13;$1$2"></textarea>
+											<textarea id="patternsToReplace" class="dynamic-textArea text-font-mono patternsToReplace" spellcheck="false" placeholder="/twitter.com/gi&#13;/(\/watch\?v=)(.*)(&list=)(.*)$/gi"></textarea>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							
+						</td>
+
+						<td class="individual-cells">
+
+							<table class="collapsed-table">
+								<tbody>
+									<tr>
+										<td class="individual-cells dynamic-textArea-cell">
+											<textarea class="dynamic-textArea text-font-mono replacementsLineNumbers" spellcheck="false" placeholder="1&#13;2&#13;3" disabled></textarea>
+										</td>
+										<td class="individual-cells dynamic-textArea-cell">
+											<textarea id="replacements" class="dynamic-textArea text-font-mono replacements" spellcheck="false" placeholder="x.com&#13;$1$2"></textarea>
 										</td>
 									</tr>
 								</tbody>
@@ -377,8 +344,8 @@
 			<table class="collapsed-table">
 				<thead>
 					<tr>
-						<th id="testLinksCell" class="individual-cells" style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Test Links (Input)</label></th>
-						<th id="replacedLinksCell" class="individual-cells" style="width: 55px; max-width: 55px;"><label style="font-weight: bold;">Replaced Links (Output)</label></th>
+						<th id="testLinksCell" class="individual-cells"><label>Test Links (Input)</label></th>
+						<th id="replacedLinksCell" class="individual-cells"><label>Replaced Links (Output)</label></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -389,10 +356,10 @@
 								<tbody>
 									<tr>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea class="dynamic-textArea text-font-mono testLinksLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 6); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3&#13;4&#13;5&#13;6" disabled></textarea>
+											<textarea class="dynamic-textArea text-font-mono testLinksLineNumbers" spellcheck="false" placeholder="1&#13;2&#13;3&#13;4&#13;5&#13;6" disabled></textarea>
 										</td>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea id="testLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 61); min-height: calc(18px * (10 / 12) * 6);" placeholder="https://www.youtube.com/watch?v=video_id&list=list_id&index=2&#13;https://twitter.com/some_user"></textarea>
+											 <textarea id="testLinks" class="dynamic-textArea text-font-mono testLinks" spellcheck="false" placeholder="https://www.youtube.com/watch?v=video_id&list=list_id&index=2&#13;https://twitter.com/some_user"></textarea>
 										</td>
 									</tr>
 								</tbody>
@@ -406,10 +373,10 @@
 								<tbody>
 									<tr>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea class="dynamic-textArea text-font-mono testLinksLineNumbers" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12)); min-height: calc(18px * (10 / 12) * 6); width: calc((192px / 20) * (10 / 12)); text-align: right;" placeholder="1&#13;2&#13;3&#13;4&#13;5&#13;6" disabled></textarea>
+											<textarea class="dynamic-textArea text-font-mono testLinksLineNumbers" spellcheck="false" placeholder="1&#13;2&#13;3&#13;4&#13;5&#13;6" disabled></textarea>
 										</td>
 										<td class="individual-cells dynamic-textArea-cell">
-											<textarea id="replacedLinks" class="dynamic-textArea text-font-mono" spellcheck="false" style="min-width: calc((192px / 20) * (10 / 12) * 40); min-height: calc(18px * (10 / 12) * 6);" placeholder="https://www.youtube.com/watch?v=video_id&#13;https://x.com/some_user" readonly></textarea>				
+											<textarea id="replacedLinks" class="dynamic-textArea text-font-mono replacedLinks" spellcheck="false" placeholder="https://www.youtube.com/watch?v=video_id&#13;https://x.com/some_user" readonly></textarea>
 										</td>
 									</tr>
 								</tbody>
@@ -423,14 +390,14 @@
 		</section>
 
 		<section id="instructions">
-			<p style="margin-bottom: unset;">
+			<p class="instructions-paragraph">
 				* If an external link host is included in the list but the current host page is not in the list the link is not replaced.<br>
 				Like changing a twitter link "twitter.com/some_user" to an X link "x.com/some_user" in a current host "www.youtube.com".<br>
 				To replace external links in such scenario, include a dummy host name belonging to the current page and give simple rules.<br>
 				Ex:
 			</p>
 
-			<pre class="text-font-mono" style="margin: unset;">	Host Name = www.youtube.com<br>	Patterns to Replace = //gi<br>	Replacement = (empty)</pre>
+			<pre class="instructions-example text-font-mono">	Host Name = www.youtube.com<br>	Patterns to Replace = //gi<br>	Replacement = (empty)</pre>
 			
 			<p>
 				If the current host name also has rules then this step is not necessary.
@@ -438,6 +405,7 @@
 		</section>
 		
 		<script type="text/javascript" src="../js/options.js"></script>
+		
 	</body>
 
 </html>

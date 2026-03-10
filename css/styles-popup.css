@@ -1,0 +1,11 @@
+/* --------------------------Popup-------------------------- */
+.default-text-style {
+    background-color: hsl(112, 100%, 50%);
+    color: hsl(0, 100%, 50%);
+    outline: dashed 0.2em hsl(242, 100%, 50%);
+    margin: unset;
+    user-select: none;
+}
+.popup-individual-cells {
+    text-align: center;
+}

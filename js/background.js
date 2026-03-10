@@ -30,10 +30,11 @@ class OptionsStorageType{
 	 * @param {string} hostNames - The collection of spaced separated host names in a single string.
 	 * @param {string} patternsToReplace - The collection of spaced separated patterns to replace for each host name in a single string.
 	 * @param {string} replacements - The collection of spaced separated replacement patterns for each host name in a single string.
+	 * @param {string} testLinks - The collection of spaced separated test links in a single string.
 	 */
-	constructor(textCheck, textHueSlide, textSaturationSlide, textLightnessSlide, textSizeSlide, textStyleSelection, textFontSelection,
-		outlineCheck, outlineHueSlide, outlineSaturationSlide, outlineLightnessSlide, outlineSizeSlide, outlineStyleSelection, 
-		backgroundCheck, backgroundHueSlide, backgroundSaturationSlide, backgroundLightnessSlide, hostNames, patternsToReplace, replacements) {
+	constructor(textCheck = null, textHueSlide = null, textSaturationSlide = null, textLightnessSlide = null, textSizeSlide = null, textStyleSelection = null, textFontSelection = null,
+		outlineCheck = null, outlineHueSlide = null, outlineSaturationSlide = null, outlineLightnessSlide = null, outlineSizeSlide = null, outlineStyleSelection = null, 
+		backgroundCheck = null, backgroundHueSlide = null, backgroundSaturationSlide = null, backgroundLightnessSlide = null, hostNames = null, patternsToReplace = null, replacements = null, testLinks = null) {
 		/** If the text should change or not.
 		 * @type {boolean} */
 		this.textCheck = textCheck;
@@ -94,6 +95,11 @@ class OptionsStorageType{
 		/** The collection of spaced separated replacement patterns for each host name in a single string.
 		 * @type {string} */
 		this.replacements = replacements;
+		/** The collection of spaced separated test links in a single string.
+		 * @type {string} */
+		this.testLinks = testLinks;
+
+		Object.seal(this);
 	}
 }
 
@@ -112,15 +118,18 @@ class PatternReplacementType {
 		/** The replacement patterns on and for the host name. 
 		 * @type {string} */
 		this.replacements = replacements;
+
+		Object.freeze(this);
 	}
+	
 }
 
 /** Class for the options cache dictionary.
  * @class
  */
-class optionsCacheType{
+class OptionsCacheType{
 	/**
-	 * Creates and instance of `optionsCacheType`.
+	 * Creates and instance of `OptionsCacheType`.
 	 * @param {boolean} getOptionsSaved - If the options saved in storage should be read.
 	 * @param {boolean} textCheck - If the text should change or not.
 	 * @param {string} textColor - The text HSL color.
@@ -176,14 +185,22 @@ class optionsCacheType{
 		/** The host names rules, host names are keys and the values are the pattern rules.
 		 * @type {Map<string, PatternReplacementType>} */
 		this.replacementRules = replacementRules;
+
+		Object.seal(this);
 	}
 }
 
-/** Constant storing the options.
+/** Constant for storing options directly from storage.
  * @constant
- * @type {optionsCacheType}
+ * @type {OptionsStorageType}
  */
-const optionsCache = new optionsCacheType();
+const optionsStorage = new OptionsStorageType();
+
+/** Constant for storing the options ready for processing.
+ * @constant
+ * @type {OptionsCacheType}
+ */
+const optionsCache = new OptionsCacheType();
 
 /** Function to compile regex rules and store them in `compiledRules`.
  * @function
@@ -192,9 +209,6 @@ const optionsCache = new optionsCacheType();
  */
 function compileRules(replacementRules) {
 	const patternStringToRegex = replacementRules.patternsToReplace.match(/^\/(.+)?\/([a-z]+)$/);
-	// const newPattern = patternStringToRegex[1];
-	// const newFlag = patternStringToRegex[2];
-
 	if (patternStringToRegex) {
 		const newPattern = patternStringToRegex[1];
 		const newFlag = patternStringToRegex[2];
@@ -210,10 +224,10 @@ function compileRules(replacementRules) {
 
 /** Function to write the options to the cache.
  * @function
- * @param {OptionsStorageType} result - The options that come directly from the storage.
+ * @param {OptionsStorageType} options - The options that come directly from the storage.
  * @returns {void}
  */
-function writeToOptionsCache(result) {
+function writeToOptionsCache(options) {
 	
 	/** Function to validate the existence of the keys in the dictionary.
 	 * @function
@@ -224,63 +238,93 @@ function writeToOptionsCache(result) {
 	 */
 	const keyValidate = (dictionary, key, default_value) => {return dictionary[key] ?? default_value;}
 
-	const textCheck = keyValidate(result, 'textCheck', true);
+	const textCheck = keyValidate(options, 'textCheck', true);
+	optionsStorage.textCheck = textCheck;
 	optionsCache.textCheck = textCheck;
-	const outlineCheck = keyValidate(result, 'outlineCheck', true);
+	const outlineCheck = keyValidate(options, 'outlineCheck', true);
+	optionsStorage.outlineCheck = outlineCheck;
 	optionsCache.outlineCheck = outlineCheck;
-	const backgroundCheck = keyValidate(result, 'backgroundCheck', true);
+	const backgroundCheck = keyValidate(options, 'backgroundCheck', true);
+	optionsStorage.backgroundCheck = backgroundCheck;
 	optionsCache.backgroundCheck = backgroundCheck;
+
+	const textHue = keyValidate(options, 'textHueSlide', "0");
+	const textSaturation = keyValidate(options, 'textSaturationSlide', "100");
+	const textLightness = keyValidate(options, 'textLightnessSlide', "50");
+	const textSize = keyValidate(options, 'textSizeSlide', "100");
+	const textStyle = keyValidate(options, 'textStyleSelection', "");
+	const textFont = keyValidate(options, 'textFontSelection', "");
+	optionsStorage.textHueSlide = textHue;
+	optionsStorage.textSaturationSlide = textSaturation;
+	optionsStorage.textLightnessSlide = textLightness;
+	optionsStorage.textSizeSlide = textSize;
+	optionsStorage.textStyleSelection = textStyle;
+	optionsStorage.textFontSelection = textFont;
 	if (textCheck) {
-		const textHue = keyValidate(result, 'textHueSlide', "0");
-		const textSaturation = keyValidate(result, 'textSaturationSlide', "100");
-		const textLightness = keyValidate(result, 'textLightnessSlide', "50");
 		optionsCache.textColor = "hsl(" + textHue + ", " + textSaturation + "%, " + textLightness + "%)";
-		optionsCache.textSize = Number(keyValidate(result, 'textSizeSlide', "100"));
-		optionsCache.textStyle = keyValidate(result, 'textStyleSelection', "");
-		optionsCache.textFont = keyValidate(result, 'textFontSelection', "");
+		optionsCache.textSize = Number(textSize);
+		optionsCache.textStyle = textStyle;
+		optionsCache.textFont = textFont;
 	} else {
 		optionsCache.textColor = "";
 		optionsCache.textSize = "";
 		optionsCache.textStyle = "";
 		optionsCache.textFont = "";
 	}
+
+	const outlineHue = keyValidate(options, 'outlineHueSlide', "242");
+	const outlineSaturation = keyValidate(options, 'outlineSaturationSlide', "100");
+	const outlineLightness = keyValidate(options, 'outlineLightnessSlide', "50");
+	const outlineSize = keyValidate(options, 'outlineSizeSlide', "10");
+	const outlineStyle = keyValidate(options, 'outlineStyleSelection', "dashed");
+	optionsStorage.outlineHueSlide = outlineHue;
+	optionsStorage.outlineSaturationSlide = outlineSaturation;
+	optionsStorage.outlineLightnessSlide = outlineLightness;
+	optionsStorage.outlineSizeSlide = outlineSize;
+	optionsStorage.outlineStyleSelection = outlineStyle;
 	if (outlineCheck) {
-		const outlineHue = keyValidate(result, 'outlineHueSlide', "242");
-		const outlineSaturation = keyValidate(result, 'outlineSaturationSlide', "100");
-		const outlineLightness = keyValidate(result, 'outlineLightnessSlide', "50");
 		optionsCache.outlineColor = "hsl(" + outlineHue + ", " + outlineSaturation + "%, " + outlineLightness + "%)";
-		optionsCache.outlineSize = Number(keyValidate(result, 'outlineSizeSlide', "10"));
-		optionsCache.outlineStyle = keyValidate(result, 'outlineStyleSelection', "dashed");
+		optionsCache.outlineSize = Number(outlineSize);
+		optionsCache.outlineStyle = outlineStyle;
 	} else {
 		optionsCache.outlineColor = "";
 		optionsCache.outlineSize = "";
 		optionsCache.outlineStyle = "";
 	}
+
+	const backgroundHue = keyValidate(options, 'backgroundHueSlide', "112");
+	const backgroundSaturation = keyValidate(options, 'backgroundSaturationSlide', "100");
+	const backgroundLightness = keyValidate(options, 'backgroundLightnessSlide', "50");
+	optionsStorage.backgroundHueSlide = backgroundHue;
+	optionsStorage.backgroundSaturationSlide = backgroundSaturation;
+	optionsStorage.backgroundLightnessSlide = backgroundLightness;
 	if (backgroundCheck) {
-		const backgroundHue = keyValidate(result, 'backgroundHueSlide', "112");
-		const backgroundSaturation = keyValidate(result, 'backgroundSaturationSlide', "100");
-		const backgroundLightness = keyValidate(result, 'backgroundLightnessSlide', "50");
 		optionsCache.backgroundColor = "hsl(" + backgroundHue + ", " + backgroundSaturation + "%, " + backgroundLightness + "%)";
 	} else {
 		optionsCache.backgroundColor = "";
 	}
 
+	const hostNames = keyValidate(options, 'hostNames', null);
+	const patternsToReplace = keyValidate(options, 'patternsToReplace', null);
+	const replacements = keyValidate(options, 'replacements', null);
+	optionsStorage.hostNames = hostNames;
+	optionsStorage.patternsToReplace = patternsToReplace;
+	optionsStorage.replacements = replacements;
+
 	/** Function to trim and make a list from a string with spaced separated values.
 	 * @function
 	 * @param {string} string - The string with spaced separated values.
-	 * @returns {Array<string> | null} The array list of trimmed strings.
+	 * @returns {Array<string>} The array list of trimmed strings.
 	 */
 	const trimmingList = (string) => {
-		if (string) {
-			const rawList = string.split("\n");
-			const newList = [];
-			for (const element of rawList) {
-				newList.push(element.trim());
-			}
-			return newList;
-		}
-
-		return null;
+		const rawList = string.split("\n");
+		// const newList = [];
+		// for (const element of rawList) {
+		// 	newList.push(element.trim());
+		// }
+		rawList.forEach((value, index) => rawList[index] = value.trim());
+		return rawList;
+		// return newList;
 	}
 
 	/** Function to map host names with their replacement rules.
@@ -288,28 +332,31 @@ function writeToOptionsCache(result) {
 	 * @returns {Map<string, PatternReplacementType>} Map with hostnames as keys and pattern replacement rules as values.
 	 */
 	const createReplacementRules = () => {
-		const hostNames = trimmingList(keyValidate(result, 'hostNames', null));
-		const patternsToReplace = trimmingList(keyValidate(result, 'patternsToReplace', null));
-		const replacements = trimmingList(keyValidate(result, 'replacements', null));
-		const dictionary = new Map();
+		const hostNamesList = trimmingList(hostNames);
+		const patternsToReplaceList = trimmingList(patternsToReplace);
+		const replacementsList = trimmingList(replacements);
+		const replacementRules = new Map();
 
-		if (hostNames && patternsToReplace && replacements) {
-			for (let i = 0; i < hostNames.length; i++) {
-				dictionary.set(hostNames[i], compileRules({patternsToReplace: patternsToReplace[i], replacements: replacements[i]}));
+		const minimumLength = Math.min(...[hostNamesList.length, patternsToReplaceList.length, replacementsList.length]);
+		for (let i = 0; i < minimumLength; i++) {
+			if (hostNamesList[i] !== "") {
+				replacementRules.set(hostNamesList[i], compileRules({patternsToReplace: patternsToReplaceList[i], replacements: replacementsList[i]}));
 			}
-			return dictionary;
 		}
-		return dictionary;
+		return replacementRules;
 	}
 	optionsCache.replacementRules = createReplacementRules();
-		
+
+	const testLinks = keyValidate(options, 'testLinks', null);
+	optionsStorage.testLinks = testLinks;
+
 }
 
 /** Function to get options from the storage and write them to the cache.
- * @function
- * @returns {void}
+ * @async
+ * @returns {Promise<void>}
  */
-function getOptionsFromStorage() {
+async function getOptionsFromStorage() {
 	const keys = [
 		"textCheck",
 		"textHueSlide",
@@ -333,8 +380,9 @@ function getOptionsFromStorage() {
 
 		"hostNames", 
 		"patternsToReplace", 
-		"replacements"];
-	browser.storage.local.get(keys).then(writeToOptionsCache);
+		"replacements",
+		"testLinks"];
+	await browser.storage.local.get(keys).then(writeToOptionsCache);
 	
 }
 
@@ -344,9 +392,18 @@ function getOptionsFromStorage() {
  */
 async function getOptions() {
 	if (optionsCache.getOptionsSaved) {
-		getOptionsFromStorage();
+		await getOptionsFromStorage();
 		optionsCache.getOptionsSaved = false;
 	}
+}
+
+/** Function to update options
+ * @async
+ * @returns {Promise<void>}
+ */
+async function updateOptions() {
+	optionsCache.getOptionsSaved = true;
+	await getOptions();
 }
 
 
@@ -358,7 +415,7 @@ let bookmarkCache = null;
 
 /** Function to get the bookmarks from the database and the options if they are not in the cache and pack them together.
  * @async
- * @returns {Promise<{bookmarkCache: Set<string>, options: optionsCacheType}>} Object literal for bookmark cache and options. 
+ * @returns {Promise<{bookmarkCache: Set<string>, options: OptionsCacheType}>} Object literal for bookmark cache and options. 
  */
 async function getBookmarksOnce() {
 	
@@ -385,15 +442,6 @@ async function getBookmarksOnce() {
 	bookmarkCache = urls; // cache
 
 	return {bookmarkCache: bookmarkCache, options: optionsCache};
-}
-
-/** Function to update options
- * @async
- * @returns {Promise<void>}
- */
-async function updateOptions() {
-	optionsCache.getOptionsSaved = true;
-	await getOptions();
 }
 
 /** Function to export options into a JSON file and download it.
@@ -485,11 +533,20 @@ function retrieveWindowsWithOptionsPageOpened() {
 	return { openedWindows: windowsWithOptionsOpened };
 }
 
+/** Function to retrieve the options directly from storage.
+ * @async
+ * @returns {Promise<{optionsStorage: OptionsStorageType}>}
+ */
+async function retrieveOptionsStorage() {
+	await getOptions();
+	return { optionsStorage: optionsStorage };
+}
+
 /** Constant to map all page options message actions to their functions.
  * @type {Map<string, (msg: 
  * {windowOpened: {windowID: number, tabID: number}} & 
  * {windowClosed: number}
- * ) => void | Promise<{openedWindows: Map<number, number>}>
+ * ) => void | Promise<{openedWindows: Map<number, number>} | {optionsStorage: OptionsStorageType}>
  * >}
  */
 const optionsPageRelatedActions = new Map([
@@ -497,7 +554,8 @@ const optionsPageRelatedActions = new Map([
 	["exportOptions", (msg) => {exportOptions();}],
 	["registerWindowsWithOptionsPageOpened", (msg) => {registerWindowsWithOptionsPageOpened(msg.windowOpened);}],
 	["unRegisterWindowsWithOptionsPageOpened", (msg) => {unRegisterWindowsWithOptionsPageOpened(msg.windowClosed);}],
-	["retrieveWindowsWithOptionsPageOpened", async (msg) => {return retrieveWindowsWithOptionsPageOpened();}]
+	["retrieveWindowsWithOptionsPageOpened", async (msg) => {return retrieveWindowsWithOptionsPageOpened();}],
+	["retrieveOptionsStorage", async (msg) => {return retrieveOptionsStorage();}]
 ]);
 
 /** Function to add bookmark into the bookmarks cache.
@@ -536,24 +594,8 @@ function changeBookmarkEvent(bookmarkID, bookmarkInfo) {
 	}
 }
 
-/** Adds a listener to the `updateOptions`, `exportOptions` actions when pressing the save or export button; `registerWindowsWithOptionsPageOpened` and `unRegisterWindowsWithOptionsPageOpened` actions
- * when loading and unloading the options page; `retrieveWindowsWithOptionsPageOpened` when pressing the options button in the popup. */
+/** Adds a listener to any actions that are not `getBookmarks`, which come from the options page or popup. */
 browser.runtime.onMessage.addListener((msg) => {
-	// if (msg.action === "updateOptions") {
-	// 	updateOptions();
-	// }
-	// if (msg.action === "exportOptions") {
-	// 	exportOptions();
-	// }
-	// if (msg.action === "registerWindowsWithOptionsPageOpened") {
-	// 	registerWindowsWithOptionsPageOpened(msg.windowOpened);
-	// }
-	// if (msg.action === "unRegisterWindowsWithOptionsPageOpened") {
-	// 	unRegisterWindowsWithOptionsPageOpened(msg.windowClosed);
-	// }
-	// if (msg.action === "retrieveWindowsWithOptionsPageOpened") {
-	// 	return retrieveWindowsWithOptionsPageOpened().then((openedWindows) => ({ openedWindows: openedWindows }));
-	// }
 	if (optionsPageRelatedActions.has(msg.action)) {
 		return optionsPageRelatedActions.get(msg.action)(msg);
 	}

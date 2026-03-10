@@ -98,6 +98,8 @@ class OptionsStorageType{
 		/** The collection of spaced separated test links in a single string.
 		 * @type {string} */
 		this.testLinks = testLinks;
+
+		Object.seal(this);
 	}
 }
 
@@ -116,6 +118,8 @@ class PatternReplacementType {
 		/** The replacement patterns on and for the host name. 
 		 * @type {string} */
 		this.replacements = replacements;
+
+		Object.freeze(this);
 	}
 }
 
@@ -569,79 +573,53 @@ function replaceStringPattern(string, rule) {
 	return newString;
 }
 
-/** Function to compile regex rules and store them in `compiledRules`.
- * @function
- * @param {RegExp} compiledRule - Pattern to be replaced.
- * @param {string} replacement - Replacement for the pattern.
- * @returns {PatternReplacementType} Replacement in regex and its replacement.
- */
-function compileRules2(compiledRule, replacement) {
-	return new PatternReplacementType(compiledRule, replacement);
-}
-
-// /** Function to compile regex rules and store them in `compiledRules`.
-//  * @function
-//  * @param {{patternToReplace: string, replacement: string}} replacementRule - Replacement pattern and replacement.
-//  * @param {Set<number>} patternsToReplaceErrorLines
-//  * @param {number} line
-//  * @returns {PatternReplacementType | null} Replacement in regex and their replacement.
-//  */
-// function compileRules(replacementRule, patternsToReplaceErrorLines, line) {
-// 	const patternStringToRegex = replacementRule.patternToReplace.match(/^\/(.+)?\/([a-z]+)$/);
-
-// 	if (patternStringToRegex) {
-// 		const newPattern = patternStringToRegex[1];
-// 		const newFlag = patternStringToRegex[2];
-// 		try {
-// 			return new PatternReplacementType(new RegExp(newPattern, newFlag), replacementRule.replacement);
-// 		} catch (error) {
-// 			// Ignore error.
-// 			patternsToReplaceErrorLines.add(line + 1);
-// 			return null;
-// 		}
-// 	}
-// 	return null;
-// }
-
 /** List of host names.
+ * @constant
  * @type {Array<string>}
  */
-const hostNamesTest = [];
+const hostNames = [];
 /** List of patterns to replace.
+ * @constant
  * @type {Array<string>}
  */
-const patternsToReplaceTest = [];
+const patternsToReplace = [];
 /** List of replacements.
+ * @constant
  * @type {Array<string>}
  */
-const replacementsTest = [];
+const replacements = [];
 /** List of compiled rules in regex.
+ * @constant
  * @type {Array<RegExp>}
  */
-const compiledRulesTest = [];
+const compiledRules = [];
 /** Map considering the smallest list (hostName, patternsToReplace, replacements) of hostNames and its replacement rules.
+ * @constant
  * @type {Map<string, PatternReplacementType>}
  */
-const replacementRulesTest = new Map();
-/** Set of lines in `patternsToReplaceTest` containing errors in their regex.
+const replacementRules = new Map();
+/** Set of lines in `patternsToReplace` containing errors in their regex.
+ * @constant
  * @type {Set<number>}
  */
-const patternsToReplaceErrorLinesTest = new Set();
+const patternsToReplaceErrorLines = new Set();
 /** List of test links.
+ * @constant
  * @type {Array<string>}
  */
-const testLinksTest = [];
+const testLinks = [];
 /** List of replaced links.
+ * @constant
  * @type {Array<string>}
  */
-const replacedLinksTest = [];
+const replacedLinks = [];
 
-/** Function to update the replacement rules
+/** Function to update the text area elements in the options page.
  * @function
  * @param {string} elementID - The id of the element to be updated.
  * @returns {void}
  */
-function updateReplacementList(elementID) {
+function updateTextAreaList(elementID) {
 
 	/** Function to make list into an array and trim each element.
 	 * @function
@@ -650,11 +628,13 @@ function updateReplacementList(elementID) {
 	 */
 	const trimmingList = (id) => {
 		const rawList = document.getElementById(id).value.split("\n");
-		const newList = [];
-		for (const element of rawList) {
-			newList.push(element.trim());
-		}
-		return newList;
+		// const newList = [];
+		// for (const element of rawList) {
+		// 	newList.push(element.trim());
+		// }
+		rawList.forEach((value, index) => rawList[index] = value.trim());
+		return rawList;
+		// return newList;
 	}
 
 	/** Function to delete elements of an array without losing its reference.
@@ -681,11 +661,11 @@ function updateReplacementList(elementID) {
 	 * @returns {void}
 	 */
 	const updateReplacementRules = () => {
-		replacementRulesTest.clear();
-		const minimumLength = Math.min(...[hostNamesTest.length, patternsToReplaceTest.length, replacementsTest.length]);
+		replacementRules.clear();
+		const minimumLength = Math.min(...[hostNames.length, patternsToReplace.length, replacements.length]);
 		for (let i = 0; i < minimumLength; i++) {
-			if (hostNamesTest[i] !== "") {
-				replacementRulesTest.set(hostNamesTest[i], compileRules2(compiledRulesTest[i], replacementsTest[i]));
+			if (hostNames[i] !== "") {
+				replacementRules.set(hostNames[i], new PatternReplacementType(compiledRules[i], replacements[i]));
 			}
 		}
 	}
@@ -780,28 +760,28 @@ function updateReplacementList(elementID) {
 		processClassLineNumbers(elementLineNumberName, elementArray.length, 3);
 	}
 
-	/** Function to update the compiled rules.
+	/** Function to compile pattern rules.
 	 * @function
 	 * @returns {void}
 	 */
-	const updateCompiledRules = () => {
-		deleteArrayElements(compiledRulesTest);
-		patternsToReplaceErrorLinesTest.clear();
+	const compileRules = () => {
+		deleteArrayElements(compiledRules);
+		patternsToReplaceErrorLines.clear();
 		
-		for (let i = 0; i < patternsToReplaceTest.length; i++) {
-			const patternStringToRegex = patternsToReplaceTest[i].match(/^\/(.+)?\/([a-z]+)$/);
+		for (let i = 0; i < patternsToReplace.length; i++) {
+			const patternStringToRegex = patternsToReplace[i].match(/^\/(.+)?\/([a-z]+)$/);
 			if (patternStringToRegex) {
+				const newPattern = patternStringToRegex[1];
+				const newFlag = patternStringToRegex[2];
 				try {
-					const newPattern = patternStringToRegex[1];
-					const newFlag = patternStringToRegex[2];
 					const regex = new RegExp(newPattern, newFlag);
-					compiledRulesTest.push(regex);
+					compiledRules.push(regex);
 				} catch {
-					patternsToReplaceErrorLinesTest.add(i + 1);
-					compiledRulesTest.push(null);
+					patternsToReplaceErrorLines.add(i + 1);
+					compiledRules.push(null);
 				}
 			} else {
-				compiledRulesTest.push(null);
+				compiledRules.push(null);
 			}
 		}
 	}
@@ -811,18 +791,18 @@ function updateReplacementList(elementID) {
 	 * @returns {void}
 	 */
 	const processPatternsToReplaceCellErrorMessage = () => {
-		if (patternsToReplaceErrorLinesTest.size > 0) {
-			const patternsToReplaceCellErrorLocationNewString = JSON.stringify(Array.from(patternsToReplaceErrorLinesTest).sort());
+		if (patternsToReplaceErrorLines.size > 0) {
+			const patternsToReplaceCellErrorLocationNewString = `[ ${Array.from(patternsToReplaceErrorLines).sort((a, b) => a - b).join(", ")} ]`;
 			if (document.getElementById('patternsToReplaceCellErrorLocation').textContent !== patternsToReplaceCellErrorLocationNewString) {
-				document.getElementById('patternsToReplaceCellError').style.display = "";
-				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "";
+				document.getElementById('patternsToReplaceCellError').style.setProperty("display", "inline");
+				document.getElementById('patternsToReplaceCellErrorLocation').style.setProperty("display", "inline");
 				document.getElementById('patternsToReplaceCellErrorLocation').textContent = patternsToReplaceCellErrorLocationNewString;
 			}
 		} else {
 			const patternsToReplaceCellErrorLocationContent = document.getElementById('patternsToReplaceCellErrorLocation').textContent;
 			if (patternsToReplaceCellErrorLocationContent !== "") {
-				document.getElementById('patternsToReplaceCellError').style.display = "none";
-				document.getElementById('patternsToReplaceCellErrorLocation').style.display = "none";
+				document.getElementById('patternsToReplaceCellError').style.removeProperty("display");
+				document.getElementById('patternsToReplaceCellErrorLocation').style.removeProperty("display");
 				document.getElementById('patternsToReplaceCellErrorLocation').textContent = "";
 			}
 		}
@@ -834,45 +814,47 @@ function updateReplacementList(elementID) {
 	 * @returns {void}
 	 */
 	const processReplacedLinks = (ignoreUpdatingReplacements = false) => {
-		deleteArrayElements(replacedLinksTest);
+		deleteArrayElements(replacedLinks);
 		if (!ignoreUpdatingReplacements) {updateReplacementRules();}
 		const newLinks = [];
-		testLinksTest.forEach(link => newLinks.push(replaceInDomain(link, replacementRulesTest)));
-		addArrayElements(replacedLinksTest, newLinks);
-		document.getElementById('replacedLinks').value = createNewList(replacedLinksTest);
-		adjustWidth(document.getElementById('replacedLinks'), maxWidthSize(replacedLinksTest));
-		adjustHeight(document.getElementById('replacedLinks'), replacedLinksTest.length);
+		testLinks.forEach(link => newLinks.push(replaceInDomain(link, replacementRules)));
+		addArrayElements(replacedLinks, newLinks);
+		document.getElementById('replacedLinks').value = createNewList(replacedLinks);
+		adjustWidth(document.getElementById('replacedLinks'), maxWidthSize(replacedLinks));
+		adjustHeight(document.getElementById('replacedLinks'), replacedLinks.length);
 	}
 
+	/** Constant to map the elements to be updated and their functions.
+	 * @constant
+	 * @type {Map<string, () => void>}
+	 */
 	const updateMap = new Map([
 		["hostNames", () => {
-			processTextArea(hostNamesTest, 'hostNames', 'hostNamesCell', 'hostNamesLineNumbers');
+			processTextArea(hostNames, 'hostNames', 'hostNamesCell', 'hostNamesLineNumbers');
 			processReplacedLinks();
 		}],
 		["patternsToReplace", () => {
-			processTextArea(patternsToReplaceTest, 'patternsToReplace', 'patternsToReplaceCell', 'patternsToReplaceLineNumbers');
-			updateCompiledRules();
+			processTextArea(patternsToReplace, 'patternsToReplace', 'patternsToReplaceCell', 'patternsToReplaceLineNumbers');
+			compileRules();
 			processPatternsToReplaceCellErrorMessage();
 			processReplacedLinks();
 		}],
 		["replacements", () => {
-			processTextArea(replacementsTest, 'replacements', 'replacementsCell', 'replacementsLineNumbers');
+			processTextArea(replacements, 'replacements', 'replacementsCell', 'replacementsLineNumbers');
 			processReplacedLinks();
 		}],
 		["testLinks", () => {
-			processTextArea(testLinksTest, 'testLinks', 'testLinksCell', 'testLinksLineNumbers');
+			processTextArea(testLinks, 'testLinks', 'testLinksCell', 'testLinksLineNumbers');
 			processReplacedLinks(true);
 		}],
 		["all", () => {
-			processTextArea(hostNamesTest, 'hostNames', 'hostNamesCell', 'hostNamesLineNumbers');
-			processTextArea(patternsToReplaceTest, 'patternsToReplace', 'patternsToReplaceCell', 'patternsToReplaceLineNumbers');
-			updateCompiledRules();
+			processTextArea(hostNames, 'hostNames', 'hostNamesCell', 'hostNamesLineNumbers');
+			processTextArea(patternsToReplace, 'patternsToReplace', 'patternsToReplaceCell', 'patternsToReplaceLineNumbers');
+			compileRules();
 			processPatternsToReplaceCellErrorMessage();
+			processTextArea(replacements, 'replacements', 'replacementsCell', 'replacementsLineNumbers');
+			processTextArea(testLinks, 'testLinks', 'testLinksCell', 'testLinksLineNumbers');
 			processReplacedLinks();
-			processTextArea(replacementsTest, 'replacements', 'replacementsCell', 'replacementsLineNumbers');
-			processTextArea(testLinksTest, 'testLinks', 'testLinksCell', 'testLinksLineNumbers');
-			processReplacedLinks()
-
 		}]
 	]);
 
@@ -880,16 +862,16 @@ function updateReplacementList(elementID) {
 	
 }
 
-document.getElementById('hostNames').addEventListener('input', () => {updateReplacementList('hostNames');});
-document.getElementById('patternsToReplace').addEventListener('input', () => {updateReplacementList('patternsToReplace');});
-document.getElementById('replacements').addEventListener('input', () => {updateReplacementList('replacements');});
-document.getElementById('testLinks').addEventListener('input', () => {updateReplacementList('testLinks');});
+document.getElementById('hostNames').addEventListener('input', () => {updateTextAreaList('hostNames');});
+document.getElementById('patternsToReplace').addEventListener('input', () => {updateTextAreaList('patternsToReplace');});
+document.getElementById('replacements').addEventListener('input', () => {updateTextAreaList('replacements');});
+document.getElementById('testLinks').addEventListener('input', () => {updateTextAreaList('testLinks');});
 
 /** Function to update the options by sending a message to take action `updateOptions` to the background.
  * @function
  * @returns {void}
  */
-function updateOptions () {
+function updateOptions() {
 	browser.runtime.sendMessage({ action: "updateOptions" });
 }
 
@@ -1121,12 +1103,12 @@ function getSavedOptions(options, source) {
 }
 
 /** Function to save the options to the storage and update the options in the background.
- * @function
- * @returns {void}
+ * @async
+ * @returns {Promise<void>}
  */
-function saveOptions() {
+async function saveOptions() {
 	const source = 'element';
-	browser.storage.local.set({
+	await browser.storage.local.set({
 		textCheck: gettingOptions.get('textCheck').get(source)(),
 		textHueSlide: gettingOptions.get('textHueSlide').get(source)(),
 		textSaturationSlide: gettingOptions.get('textSaturationSlide').get(source)(),
@@ -1155,7 +1137,7 @@ function saveOptions() {
 	
 	getSavedOptions(null, source);
 	changeAll();
-	updateReplacementList('all');
+	updateTextAreaList('all');
 
 	updateOptions();
 }
@@ -1195,12 +1177,12 @@ function changePageOptionsFromStorage(options) {
 	document.getElementById("replacements").value = gettingOptions.get('replacements').get(source)(options);
 	document.getElementById("testLinks").value = gettingOptions.get('testLinks').get(source)(options);
 
-	updateReplacementList('all');
+	updateTextAreaList('all');
 }
 
 /** Function to import the options from a JSON file.
- * @function
- * @returns {void}
+ * @async
+ * @returns {Promise<void>}
  */
 async function importOptions() {
 
@@ -1232,6 +1214,10 @@ async function importOptions() {
 	
 }
 
+/** Function to bring text related options to their default values.
+ * @function
+ * @returns {void}
+ */
 function defaultOptions() {
 	const source = 'storage';
 	const options = new Map();
@@ -1260,36 +1246,40 @@ function defaultOptions() {
 }
 
 /** Function to restore the options from the storage when options page is loaded.
- * @function
- * @returns {void}
+ * @async
+ * @returns {Promise<void>}
  */
-function restoreOptions() {
-	const keys = [
-		"textCheck",
-		"textHueSlide",
-		"textSaturationSlide",
-		"textLightnessSlide",
-		"textSizeSlide",
-		"textStyleSelection",
-		"textFontSelection",
+ async function restoreOptions() {
+	// const keys = [
+	// 	"textCheck",
+	// 	"textHueSlide",
+	// 	"textSaturationSlide",
+	// 	"textLightnessSlide",
+	// 	"textSizeSlide",
+	// 	"textStyleSelection",
+	// 	"textFontSelection",
 
-		"outlineCheck",
-		"outlineHueSlide",
-		"outlineSaturationSlide",
-		"outlineLightnessSlide",
-		"outlineSizeSlide",
-		"outlineStyleSelection",
+	// 	"outlineCheck",
+	// 	"outlineHueSlide",
+	// 	"outlineSaturationSlide",
+	// 	"outlineLightnessSlide",
+	// 	"outlineSizeSlide",
+	// 	"outlineStyleSelection",
 
-		"backgroundCheck",
-		"backgroundHueSlide",
-		"backgroundSaturationSlide",
-		"backgroundLightnessSlide",
+	// 	"backgroundCheck",
+	// 	"backgroundHueSlide",
+	// 	"backgroundSaturationSlide",
+	// 	"backgroundLightnessSlide",
 
-		"hostNames", 
-		"patternsToReplace", 
-		"replacements",
-		"testLinks"];
-	browser.storage.local.get(keys).then((result) => {getSavedOptions(result, 'storage'); changePageOptionsFromStorage(result);});
+	// 	"hostNames", 
+	// 	"patternsToReplace", 
+	// 	"replacements",
+	// 	"testLinks"];
+	// browser.storage.local.get(keys).then((result) => {getSavedOptions(result, 'storage'); changePageOptionsFromStorage(result);});
+	await browser.runtime.sendMessage({ action: "retrieveOptionsStorage" }).then((result) => {
+		getSavedOptions(result.optionsStorage, 'storage');
+		changePageOptionsFromStorage(result.optionsStorage);
+	});
 		
 }
 

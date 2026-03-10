@@ -1,0 +1,16 @@
+/* --------------------------Common------------------------- */
+.default-background-color {
+    background-color: white;
+}
+.button-type {
+    background-color: hsl(0, 0%, 90%);
+    border: 1px solid black;
+    border-radius: 0px;
+    transition: font-size 0.2s ease;
+}
+.button-type:active {
+    font-size: 12px;
+}
+.button-type:hover {
+    background-color: hsl(0, 0%, 80%);
+}

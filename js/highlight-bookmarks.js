@@ -69,6 +69,8 @@ class PatternReplacementType {
 		/** The replacement patterns on and for the host name. 
 		 * @type {string} */
 		this.replacements = replacements;
+
+		Object.freeze(this);
 	}
 }
 
@@ -146,6 +148,8 @@ class OptionsType {
 		/** Map list with the host names as keys and the dictionary of replacement rules as values. 
 		 * @type {Map<string, PatternReplacementType>} */
 		this.replacementRules = replacementRules;
+
+		Object.seal(this);
 	}
 }
 
@@ -164,6 +168,8 @@ class OriginalTextSizeType {
 		/** The unit of the original link's text. 
 		 * @type{string} */
 		this.unit = unit;
+
+		Object.freeze(this);
 	}
 }
 
@@ -173,11 +179,6 @@ class OriginalTextSizeType {
  * @returns {OriginalTextSizeType | null} Returns the original text size with it's unit and rule if any.
  */
 function getOriginalTextSize(rule) {
-	
-	// let temp = rule;
-	// temp = temp.split("font-size:")[1];
-	// temp = temp.split(";")[0];
-	// temp = temp.trim();
 
 	const fontSizeString = rule.replace(/^(?:.*)(?:font-size: ?)(\d+\.\d+|\d+)?(.[^;! ]+)(?:;| ?!important;)(?:.*)?$/gis, "$1 $2");
 	
@@ -195,34 +196,6 @@ function getOriginalTextSize(rule) {
 		return new OriginalTextSizeType(size, units);
 	}
 
-	// let units = String();
-	// if (temp.search("rem") != -1) {
-	// 	units = "rem";
-	// 	temp = temp.split("rem")[0];
-	// 	return filter(temp, units);
-	// }
-	// if (temp.search("em") != -1) {
-	// 	units = "em";
-	// 	temp = temp.split("em")[0];
-	// 	return filter(temp, units);
-	// }
-	// if (temp.search("px") != -1) {
-	// 	units = "px";
-	// 	temp = temp.split("px")[0];
-	// 	return filter(temp, units);
-	// }
-	// if (temp.search("%") != -1) {
-	// 	units = "%";
-	// 	temp = temp.split("%")[0];
-	// 	return filter(temp, units);
-	// }
-	// if (temp.search("vw") != -1) {
-	// 	units = "vw";
-	// 	temp = temp.split("vw")[0];
-	// 	return filter(temp, units);
-	// }
-
-	// return null;
 	const newString = fontSizeString.split(" ");
 	const textSize = filter(newString[0], newString[1]);
 
@@ -271,7 +244,6 @@ function getCssRules(element, appliedRules) {
 	let selectors = [];
 	for (const [selector, size] of appliedRules) {
 		if (element.matches(selector)) {
-			// return size;
 			sizes.push(size);
 			selectors.push(selector);
 			numberOfSizeSelectors += 1;
@@ -304,7 +276,7 @@ function getCssRules(element, appliedRules) {
 /** Function that replaces in the string the pattern and replaces it with another pattern.
  * @function
  * @param {string} string - The original string to be changed.
- * @param {PatternReplacementType} rule - The host regex patterns to replace and the replacements.
+ * @param {PatternReplacementType | null} rule - The host regex patterns to replace and the replacements.
  * @returns {string} The string with the pattern replacements.
  * @example
  * // Example 1:
@@ -558,14 +530,6 @@ function highlightAllLinks(response) {
 		replaceHrefInLink(link, options.replacementRules);
 
 		if (bookmarks.has(link.href)) {
-			// const originalTextSize = getCssRules(link, appliedRules);
-			
-			// link.setAttribute("class", "");
-
-			// if (link.tagName != 'IMG') {
-			// 	changeTextStyle(link, options, originalTextSize);
-			// }
-
 			changeOutlineStyle(link, options);
 			changeBackgroundStyle(link, options);
 
